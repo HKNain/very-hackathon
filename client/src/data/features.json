@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Track Your Movement",
+    "description": "Monitor your daily activity with precision and improve your fitness journey.",
+    "icon": "📊"
+  },
+  {
+    "title": "Earn Rewards",
+    "description": "Gain tokens and perks while achieving your health goals.",
+    "icon": "💎"
+  },
+  {
+    "title": "Personalized Growth",
+    "description": "AI-driven insights tailored to evolve your well-being.",
+    "icon": "🤖"
+  },
+  {
+    "title": "Seamless Integration",
+    "description": "Connect with wearables and sync across all devices effortlessly.",
+    "icon": "⌚"
+  },
+  {
+    "title": "Community Support",
+    "description": "Engage with like-minded individuals and share your journey.",
+    "icon": "🌍"
+  },
+  {
+    "title": "Secure & Private",
+    "description": "Your data stays encrypted and protected at all times.",
+    "icon": "🔒"
+  }
+]

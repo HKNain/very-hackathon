@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Active Users",
+    "value": 12500,
+    "icon": "👥"
+  },
+  {
+    "label": "Milestones Achieved",
+    "value": 3850,
+    "icon": "🏆"
+  },
+  {
+    "label": "Hours Trained",
+    "value": 74200,
+    "icon": "⏱"
+  },
+  {
+    "label": "Rewards Claimed",
+    "value": 5280,
+    "icon": "💎"
+  }
+]

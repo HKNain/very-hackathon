@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Aarav Mehta",
+    "role": "Fitness Enthusiast",
+    "feedback": "Swasthya has completely changed how I approach my workouts. The gamified experience keeps me motivated every single day!",
+    "avatar": "https://i.pravatar.cc/150?img=3"
+  },
+  {
+    "name": "Sophia Williams",
+    "role": "Yoga Instructor",
+    "feedback": "I love how the platform rewards consistency. It feels like I’m part of a bigger movement towards health and well-being.",
+    "avatar": "https://i.pravatar.cc/150?img=5"
+  },
+  {
+    "name": "Kunal Verma",
+    "role": "Runner",
+    "feedback": "The sleek interface and glowing design aesthetics make using Swasthya a pure delight. Highly recommend it!",
+    "avatar": "https://i.pravatar.cc/150?img=7"
+  },
+  {
+    "name": "Emily Johnson",
+    "role": "Nutrition Coach",
+    "feedback": "Finally, an app that understands balance between activity and wellbeing. Swasthya is my daily motivator.",
+    "avatar": "https://i.pravatar.cc/150?img=11"
+  }
+]
