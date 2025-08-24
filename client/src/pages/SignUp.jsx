@@ -61,7 +61,7 @@ const randomPositions = useMemo(() => {
       toast.success(dataSubmitToSignUp.data.success)
       setTimeout(()=>{
         useNavigate('/login')
-      },4000)
+      },2000)
 
       
     }catch ( error ){
