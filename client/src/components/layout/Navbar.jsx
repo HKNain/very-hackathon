@@ -1,5 +1,6 @@
 import { Home } from "lucide-react";
-import { Link, NavLink } from "react-router-dom";
+import {  NavLink } from "react-router-dom";
+import veryLogo from "../png/veryLogo.png"
 
 const Navbar = () => {
   const navBarOptionsStyle =
@@ -18,8 +19,8 @@ const Navbar = () => {
                      hover:scale-110 transition-transform duration-300 ease-in-out
                      drop-shadow-lg"
         >
-          <Home size={28} className="text-indigo-400 drop-shadow-md" />
-          VeryLogo
+         
+         <img className="h-16 w-24 bg-transparent  object-cover object-center" src={`${veryLogo}`} alt="veryLogo" />
         </button>
       </div>
 
