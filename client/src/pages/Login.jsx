@@ -1,8 +1,12 @@
 import React from "react";
 import berry1 from "../components/png/berry1.png";
 import berry2 from "../components/png/berry1.png";
-import Navbar from "../components/layout/Navbar";
-import { Link } from "react-router-dom";
+import Navbar from "../components/layout/Navbar.jsx";
+import { Link ,useNavigate } from "react-router-dom";
+import { api } from "../utils/axios";
+import { useState } from "react";
+import toast from 'react-hot-toast';
+import { useMemo } from "react";  
 
 const floatingPNGs = [
   berry1,
@@ -15,6 +19,7 @@ const floatingPNGs = [
   berry2,
 ];
 
+
 const getRandomPosition = () => {
   let top, left;
   do {
@@ -25,12 +30,54 @@ const getRandomPosition = () => {
   return { top: `${top}%`, left: `${left}%` };
 };
 
-const Login = () => {
-  const randomPositions = floatingPNGs.map(() => ({
+
+const SignUp = () => {
+
+
+  const navigate = useNavigate();
+
+  const [formData , setFormData ] = useState({
+    userName :'',
+    password : ''
+  })
+  const [pending , setPending ] = useState(false)
+
+
+
+const randomPositions = useMemo(() => {
+  return floatingPNGs.map(() => ({
     ...getRandomPosition(),
-    size: Math.random() * 60 + 40, // 40px – 100px
-    duration: Math.random() * 6 + 6, // 6s – 12s
+    size: Math.random() * 60 + 40,
+    duration: Math.random() * 6 + 6,
   }));
+}, []);
+
+
+  const handleSubmit = async () =>{
+    try{
+      
+      setPending(true)
+      const dataSubmitToSignUp = await api.post('/api/auth/login',formData)
+      setPending(false)
+      toast.success(dataSubmitToSignUp.data.success)
+      setTimeout(()=>{
+        navigate('/')
+      },4000)
+      
+    }catch ( error ){
+      console.log ( " error in signing Up ", error )
+      toast.error(`${error.status} ${error.response.data.error}`)
+      setPending(false)
+
+    }
+    setFormData({
+    userName :'',
+    password : ''
+  })
+  }
+
+
+
   return (
     <>
       <Navbar />
@@ -55,7 +102,7 @@ const Login = () => {
             }}
           />
         ))}
-        <div className=" px-6 py-5 mt-20 flex gap-9 rounded-2xl shadow-lg bg-gray-400 w-1/2 bg-transparent backdrop-blur-2xl flex-col justify-center items-center ">
+        <div className=" px-6  py-5 mt-20 flex gap-9 rounded-2xl shadow-lg bg-gray-400 w-[40vw]  bg-transparent backdrop-blur-2xl flex-col justify-center items-center ">
           <h1
             className=" bg-clip-text text-transparent 
                      bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 
@@ -66,30 +113,48 @@ const Login = () => {
           </h1>
 
           <div className="flex flex-col gap-12">
+            <div className=" flex flex-col gap-2">
+
             <input
-              className="rounded-2xl bg-transparent border-2 h-8 w-96 p-5"
+              className="rounded-2xl focus:scale-110 transition-transform duration-300  text-transparent bg-clip-text 
+                     bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500  bg-transparent border-2 h-8 w-96 p-5 "
               placeholder="Enter Username"
-              type="text"
+              type="text" value={formData.userName} onChange={(e)=>setFormData((prev)=>({...prev,userName:e.target.value}))}
             />
+            <p className=" text-transparent bg-clip-text ml-2 text-sm
+                     bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 " >* userName Must be atleast of 6 chars
+                     </p>
+            </div>
+            
+
+            <div className="flex flex-col gap-2">
+
             <input
-              className="rounded-2xl bg-transparent border-2 h-8 w-96 p-5"
-              placeholder="Enter email"
-              type="email"
-            />
-            <input
-              className="rounded-2xl bg-transparent border-2 h-8 w-96 p-5"
+              className="rounded-2xl focus:scale-110 transition-transform duration-300 bg-transparent text-transparent bg-clip-text 
+                     bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 border-2 h-8 w-96 p-5"
               placeholder="Enter password"
-              type="password"
+              type="password"  value={formData.password} onChange={(e)=>setFormData((prev)=>({...prev,password:e.target.value}))}
             />
+            
+            <p className=" text-transparent bg-clip-text ml-2 text-sm
+                     bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 " >* password Must be atleast of 6 chars
+                     </p>
+
+            </div>
+            
+
+
           </div>
 
-          <button
-            className="bg-clip-text text-transparent 
+          <button onClick={handleSubmit}
+            className=" bg-clip-text text-transparent 
                      bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 
                      hover:scale-110 transition-transform duration-300 ease-in-out
-                     drop-shadow-lg text-xl border-2 border-black/10  font-poppins font-bold"
+                     drop-shadow-lg text-xl  font-poppins font-bold "
           >
-            Submit
+           {
+            pending ? <>Submiiting ...</> : <>Submit</>
+           }
           </button>
           <p className="text-md font-poppins font-bold drop-shadow-lg">
             <span
@@ -97,15 +162,15 @@ const Login = () => {
                    bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 
                    transition-transform duration-300 ease-in-out"
             >
-              Not created account?
+              Not have account?
             </span>
             <Link
-              to="/signup"
+              to="/login"
               className="ml-2 inline-block bg-clip-text text-transparent 
                bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 
                transition-transform duration-300 ease-in-out hover:scale-110"
             >
-              Login
+              Signup
             </Link>
           </p>
         </div>
@@ -114,4 +179,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;

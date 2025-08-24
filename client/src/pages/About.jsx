@@ -1,5 +1,29 @@
 import React from "react";
-import Navbar from "../components/layout/Navbar";
+import Navbar from "../components/layout/Navbar.jsx";
+import berry1 from "../components/png/berry1.png"
+import berry2 from "../components/png/berry2.png"
+
+const floatingPNGs = [
+  berry1,
+  berry2,
+  berry1,
+  berry2,
+  berry1,
+  berry2,
+  berry1,
+  berry2,
+];
+
+const getRandomPosition = () => {
+  let top, left;
+  do {
+    top = Math.random() * 100;
+    left = Math.random() * 100;
+  } while (top > 40 && top < 60 && left > 30 && left < 70);
+
+  return { top: `${top}%`, left: `${left}%` };
+};
+
 
 const About = () => {
   return (
