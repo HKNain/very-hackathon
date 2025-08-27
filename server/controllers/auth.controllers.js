@@ -1,7 +1,10 @@
 import User from "../models/user.models.js";
 import bcrypt from "bcryptjs";
-import generateTokenAndSetCookie from "../utils/generateToken.js";
+import {generateTokenAndSetCookie} from "../utils/jwtToken.js";
  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { v4 as uuidv4 } from 'uuid';
+import blackListedToken from "./blacklistToken.controllers.js";
+ const tokenId  = uuidv4();
 
 export const signup = async (req, res) => {
   try {
@@ -40,8 +43,9 @@ export const signup = async (req, res) => {
       password: hashedPassword,
       userName,
     });
+    
     if (newUser) {
-      generateTokenAndSetCookie(newUser._id, res);
+      generateTokenAndSetCookie(newUser._id, res, tokenId);
 
       await newUser.save();
 
@@ -87,11 +91,7 @@ export const login = async (req, res) => {
       .json({ error: "Invalid Credentials" });
     }
 
-   
-
-   
-
-    generateTokenAndSetCookie(user._id, res);
+    generateTokenAndSetCookie(user._id, res, tokenId);
 
     res.status(200).json({
       success : "Successfully Login "
@@ -104,6 +104,7 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
+    await blackListedToken(tokenId)
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged Out Successfully" });
   } catch (error) {
@@ -111,3 +112,20 @@ export const logout = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const userAccountDelete = async (req, res ) =>{
+  try {
+    const user = req.user;
+    await blackListedToken(tokenId) ; 
+    res.clearCookie("jwt", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+      });
+    await User.findByIdAndDelete(user._id);
+    res.status(200).json({ message: "Logged Out Successfully" });
+  } catch (error) {
+    console.log("Error in Logout Controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}

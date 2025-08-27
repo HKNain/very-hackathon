@@ -165,7 +165,7 @@ const randomPositions = useMemo(() => {
               Not have account?
             </span>
             <Link
-              to="/login"
+              to="/signup"
               className="ml-2 inline-block bg-clip-text text-transparent 
                bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 
                transition-transform duration-300 ease-in-out hover:scale-110"
