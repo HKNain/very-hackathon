@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Daily Step Goal",
+    "days": 30,
+    "description": "Walk at least 10,000 steps every day to improve cardiovascular health and maintain an active lifestyle."
+  },
+  {
+    "title": "Strength Training Challenge",
+    "days": 45,
+    "description": "Complete 4 strength-focused workouts per week targeting major muscle groups to build lean muscle mass."
+  },
+  {
+    "title": "Morning Yoga Routine",
+    "days": 21,
+    "description": "Practice a 20-minute yoga flow every morning to increase flexibility, reduce stress, and improve posture."
+  },
+  {
+    "title": "Hydration Habit",
+    "days": 14,
+    "description": "Drink at least 3 liters of water daily to stay hydrated, support metabolism, and improve recovery."
+  },
+  {
+    "title": "Cardio Endurance Boost",
+    "days": 60,
+    "description": "Perform 30 minutes of running, cycling, or HIIT three times per week to improve stamina and heart health."
+  },
+  {
+    "title": "Sleep Optimization",
+    "days": 28,
+    "description": "Maintain a consistent sleep schedule aiming for 7-8 hours of quality sleep each night for better recovery."
+  },
+  {
+    "title": "Core Strengthening",
+    "days": 25,
+    "description": "Complete daily 15-minute core-focused exercises such as planks, leg raises, and crunches to build stability."
+  },
+  {
+    "title": "Mindful Eating Practice",
+    "days": 30,
+    "description": "Adopt portion control and eat balanced meals with whole foods, tracking progress with mindful nutrition habits."
+  }
+]

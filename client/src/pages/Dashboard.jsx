@@ -1,11 +1,15 @@
-import React from 'react'
+import React from 'react';
+import NavbarDashboard from '../components/layout/NavbarDashboard';
 
 const Dashboard = () => {
   return (
-    <div>
-        
-    </div>
-  )
-}
+    <>
+      <NavbarDashboard />
+      <div className='min-h-screen w-full bg-black'>
 
-export default Dashboard
+      </div>
+    </>
+  );
+};
+
+export default Dashboard;
