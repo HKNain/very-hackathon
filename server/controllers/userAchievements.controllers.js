@@ -1,6 +1,6 @@
 import User from "../models/user.models.js";
 
-
+// * this all about achievements where all daysStreakers + its history is seen 
 export const getAchievements =async (req,res) =>{
     try {
         const user = req.user 
