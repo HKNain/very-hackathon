@@ -5,6 +5,7 @@ import cors from "cors"
 
 import connectToDatabase from "./database/connectToDatabase.js";
 import authRoutes from "./routes/auth.route.js"
+import dashBoardRoutes from "./routes/dashBoard.route.js"
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended:true}))
 
 app.use("/api/auth", authRoutes);
+app.use("/dashboard", dashBoardRoutes);
 
 
 app.listen(PORT, () => {
