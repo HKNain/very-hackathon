@@ -6,7 +6,7 @@ const Dashboard = () => {
     <>
       <NavbarDashboard />
       <div className='min-h-screen w-full bg-black'>
-
+        
       </div>
     </>
   );
