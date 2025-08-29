@@ -19,6 +19,9 @@ const achievementForDaysCome= (days)=> {
 
 }
 
+//  * This is all about regularly checking the user is coming to website by sending regularly token
+//  * or cookie so that if regulalry user Coming ewe can get that 
+// * tasking data of cvreated from token and if diff of todays date - prevdate == 1 hence increase streak else make it 0 
 
 export const isRegularlyUserComing = async (req, res, next) => {
   try {
@@ -29,7 +32,7 @@ export const isRegularlyUserComing = async (req, res, next) => {
     let regularDaysUserCome = userDetails.regularlyComingToWebsiteDays;
 
     if (!token) {
-      generateTokenAndSetCookieForComingToWebsite( req.user._id , res); // ❌ missing res
+      generateTokenAndSetCookieForComingToWebsite( req.user._id , res);
       regularDaysUserCome = 0;
     } else {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -71,6 +74,8 @@ export const isRegularlyUserComing = async (req, res, next) => {
     return res.status(500).json({ error: "Internal Serevr errror " });
   }
 };
+
+//  * this is related to regualrly showing the straks the user is maintanini g at all 
 
 export const showRegularComingStreak =async (req, res) =>{
     try {

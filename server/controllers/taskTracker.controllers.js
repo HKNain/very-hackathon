@@ -80,6 +80,35 @@ export const createTaskTracker = async  (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+/*
+// !
+{
+    "message": "Tasks fetched successfully",
+    "tasks": [
+        {
+            "taskDetails": "Regaularly At 6 Am has to go gym ",
+            "taskName": "Daily Gym Challenger",
+            "taskType": "gym",
+            "taskDuration": 50,
+            "difficulty": "medium",
+            "editedAt": "2025-08-29T14:57:17.698Z"
+        }
+    ]
+}
+// !
+*/
+
+/*  In this getting task user duration of task is checked means if todays date - created date 
+is greater than duration --> if taskIsComplted (streaks + totalDaysdueToPoints + extradDuration) Hence add in Achievements else delete 
+else if duration is greater than {
+  if missed then ---> delete 
+  
+  else 
+    show the details 
+
+}
+
+*/
 
 export const getTaskTracker = async (req, res) => {
   try {
@@ -137,13 +166,13 @@ export const getTaskTracker = async (req, res) => {
 
             
             if (track.difficulty === "easy") {
-              userDetails.points += 2;
+              userDetails.totalCoins += 2;
             } else if (track.difficulty === "medium") {
-              userDetails.points += 10;
+              userDetails.totalCoins += 10;
             } else if (track.difficulty === "hard") {
-              userDetails.points += 20;
+              userDetails.totalCoins += 20;
             } else if (track.difficulty === "superHard") {
-              userDetails.points += 40;
+              userDetails.totalCoins += 40;
             }
 
             await usertaskTracker.findByIdAndDelete(track._id);
@@ -193,7 +222,8 @@ export const getTaskTracker = async (req, res) => {
 };
 
 /*
-{ // !
+{ 
+// !
     "success": "Task has been updated, refresh the page",
     "task": {
         "_id": "68b1a6c5b31b5ac0e091e5f6",
@@ -218,6 +248,16 @@ export const getTaskTracker = async (req, res) => {
 }
 //!
 
+*/
+/*
+// !
+
+  this is all about editb user can edit by using Points if having 20 poins + have extra benefits of 
+  if you have difficulty medium , hard , superhard means extra days if u have taken this challenge 
+  realted to taskdetails acn only be changed if streaks is grater than   7 
+  ans for extraDuratuion u have limited tokens 
+
+// !
 */
 
 export const updateTaskTracker = async (req, res) => {
@@ -246,7 +286,7 @@ export const updateTaskTracker = async (req, res) => {
 
     const updatedObj = {};
 
-    if (TaskTracker.streaks === 0) {
+    if (TaskTracker.streaks >= 7 ) {
       for (const task in req.body) {
         if ( task!=="taskDetails"   && task  !== "isExtraDurationClicked" && task !=="isExtraDurationByPoints" && task !=="isStreaksClicked")
         updatedObj[task] = req.body[task];
