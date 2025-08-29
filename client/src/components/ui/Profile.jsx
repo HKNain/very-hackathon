@@ -1,127 +1,130 @@
 import React from 'react';
-import CalendarHeatmap from 'react-calendar-heatmap';
-import 'react-calendar-heatmap/dist/styles.css';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import berry1 from '../png/berry1.png';
+import berry2 from '../png/berry2.png';
+import NavbarDashboard from '../layout/NavbarDashboard';
 
-const user = {
-  username: 'Hitesh',
-  email: 'hitesh@example.com',
+const cardData = [
+  {
+    title: 'Challenges',
+    route: '/challenges',
+    info: 'Completed 5 out of 10 challenges',
+  },
+  {
+    title: 'Achievements',
+    route: '/achievements',
+    info: 'Top Performer Badge unlocked',
+  },
+  {
+    title: 'Badges',
+    route: '/badges',
+    info: 'Badge: Consistency',
+  },
+];
+
+const floatingPNGs = [berry1, berry2, berry1, berry2, berry1, berry2];
+
+const getRandomPosition = () => {
+  let top, left;
+  // Avoid central area (40-60% top, 30-70% left)
+  do {
+    top = Math.random() * 100;
+    left = Math.random() * 100;
+  } while (top > 40 && top < 60 && left > 30 && left < 70);
+  return { top: `${top}%`, left: `${left}%` };
 };
 
-const achievements = ["Steps Master", "Hydration Pro", "Yoga Flow", "Power Lifter"];
-const milestones = ["100 Workouts", "1 Year Active", "500km Run", "Sleep Streak"];
-const badges = ["200 Days Badge", "Challenge Champion", "Night Owl", "Early Bird"];
-const challenges = ["August Step-Up", "Hydrate Weekly", "Monthly Core", "Yoga Daily"];
+const Profile = () => {
+  const navigate = useNavigate();
+  const randomPositions = floatingPNGs.map(() => ({
+    ...getRandomPosition(),
+    size: 90 + Math.random() * 35, // 90px – 125px
+    duration: Math.random() * 6 + 6, // 6s – 12s
+  }));
 
-const heatmapData = Array.from({ length: 365 }, (_, idx) => ({
-  date: new Date(2025, 0, 1 + idx).toISOString().slice(0, 10),
-  count: Math.floor(Math.random() * 5), // Example data
-}));
+  return (
+    <>
+    <NavbarDashboard/>
+    <div
+      className="min-h-screen w-full bg-gradient-to-br from-[#0a0a0f] via-[#120018] to-[#000000] relative overflow-hidden flex flex-row justify-center items-center pt-32
+      style={{ fontFamily: 'Poppins, sans-serif' }}"
+    >
+      {/* Floating Berries, rendered behind everything */}
+      {floatingPNGs.map((png, i) => (
+        <img
+          key={i}
+          src={png}
+          alt={`floating-${i}`}
+          className="absolute animate-floatGlow pointer-events-none"
+          style={{
+            ...randomPositions[i],
+            width: randomPositions[i].size,
+            height: randomPositions[i].size,
+            animationDuration: `${randomPositions[i].duration}s`,
+            filter: 'drop-shadow(0 0 20px rgba(236,72,153,0.6))',
+            zIndex: 1
+          }}
+        />
+      ))}
 
-const sidebarStyle = "bg-gradient-to-br from-[#0a0a0f] via-[#120018] to-[#000000] text-white w-64 min-h-screen flex flex-col justify-between rounded-r-3xl shadow-lg p-8";
-const btnStyle = "w-full px-4 py-2 rounded-lg mt-2 font-semibold transition bg-pink-500 hover:bg-pink-600 text-white";
-
-const sectionStyle = "bg-black/60 border border-pink-400 rounded-xl shadow-lg p-6 mb-8 flex flex-col items-center";
-const titleStyle = "text-lg font-bold mb-3 bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent";
-
-const Profile = () => (
-  <div className="min-h-screen w-full flex font-poppins bg-gradient-to-br from-[#0a0a0f] via-[#120018] to-[#000000]">
-    {/* Sidebar */}
-    <aside className={sidebarStyle}>
-      <div>
-        <div className="flex flex-col items-center mb-8">
-          <img
-            src="https://i.pravatar.cc/150"
-            alt="User"
-            className="h-20 w-20 rounded-full border-4 border-pink-500 mb-3 object-cover"
-          />
-          <p className="text-2xl font-bold">{user.username}</p>
-          <p className="text-sm text-gray-300">{user.email}</p>
+      {/* Sidebar */}
+      <div className="min-h-screen w-1/5 flex flex-col justify-between items-center p-4 z-10">
+        <div className="w-full flex flex-col items-center mt-8 mb-8 bg-black/70 rounded-xl shadow-lg p-4">
+          <div className="h-24 w-24 mb-4 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden">
+            <img
+              className="h-full w-full object-cover rounded-lg"
+              src="https://i.pravatar.cc/300"
+              alt="Profile"
+            />
+          </div>
+          <div className="w-full text-white text-xl font-bold text-center mb-2">
+            username
+          </div>
+          <div className="w-full text-white text-base text-center mb-6">
+            email@example.com
+          </div>
+        </div>
+        <div className="w-full flex flex-col gap-4 mb-8 bg-black/70 rounded-xl shadow-lg p-4">
+          <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md">
+            Delete Account
+          </button>
+          <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md">
+            Sign Out
+          </button>
         </div>
       </div>
-      <div className="flex flex-col gap-2 mb-10">
-        <button className={btnStyle} onClick={() => alert("Signed out!")}>Sign Out</button>
-        <button className="w-full px-4 py-2 rounded-lg mt-2 font-semibold transition bg-red-600 hover:bg-red-700 text-white"
-          onClick={() => alert("Deleted account!")}>Delete Account</button>
-      </div>
-    </aside>
 
-    {/* Main Content */}
-    <main className="flex-1 flex flex-col items-center py-10 px-4">
-      {/* 2x2 Grid for Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-2 gap-10 w-full max-w-5xl mb-10">
-        {/* Achievements */}
-        <section className={sectionStyle}>
-          <span className={titleStyle}>Achievements</span>
-          <ul>
-            {achievements.map((a, i) => (
-              <li key={i} className="text-pink-300 mb-1">{a}</li>
-            ))}
-          </ul>
-        </section>
-        {/* Milestones */}
-        <section className={sectionStyle}>
-          <span className={titleStyle}>Milestones</span>
-          <ul>
-            {milestones.map((m, i) => (
-              <li key={i} className="text-purple-300 mb-1">{m}</li>
-            ))}
-          </ul>
-        </section>
-        {/* Badges */}
-        <section className={sectionStyle}>
-          <span className={titleStyle}>Badges</span>
-          <div className="flex gap-2 mt-2">
-            {badges.map((badge, i) => (
-              <div key={i}
-                className="px-3 py-1 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-xl drop-shadow-md text-white text-xs">
-                {badge}
-              </div>
-            ))}
+      {/* Main Content area with smaller cards and larger heatmap placeholder */}
+      <div className="min-h-screen w-4/5 p-8 grid grid-cols-2 grid-rows-[1fr_1fr_2fr] gap-8 z-10">
+        {/* Cards */}
+        {cardData.map((card) => (
+          <div
+            key={card.title}
+            className="bg-black/60 border border-white/20 rounded-xl p-4 flex flex-col justify-between shadow-lg"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-white text-xl font-semibold">{card.title}</span>
+              <button
+                onClick={() => navigate(card.route)}
+                className="flex items-center justify-center"
+                aria-label={`Go to ${card.title}`}
+              >
+                <ArrowRight className="text-pink-400 w-6 h-6" />
+              </button>
+            </div>
+            <div className="mt-2 text-white/90 text-md">{card.info}</div>
           </div>
-        </section>
-        {/* Challenges */}
-        <section className={sectionStyle}>
-          <span className={titleStyle}>Challenges</span>
-          <ul>
-            {challenges.map((ch, i) => (
-              <li key={i} className="text-blue-300 mb-1">{ch}</li>
-            ))}
-          </ul>
-        </section>
-      </div>
+        ))}
 
-      {/* Heatmap Section */}
-      <div className="w-full max-w-4xl bg-black/60 border border-pink-500 rounded-2xl p-8 mb-2 shadow-lg">
-        <h2 className={titleStyle}>Activity Heatmap</h2>
-        <CalendarHeatmap
-          startDate={new Date(2025, 0, 1)}
-          endDate={new Date(2025, 11, 31)}
-          values={heatmapData}
-          classForValue={value => {
-            if (!value || value.count === 0) {
-              return "color-empty";
-            }
-            if (value.count < 2) {
-              return "color-scale-1";
-            }
-            if (value.count < 4) {
-              return "color-scale-2";
-            }
-            return "color-scale-3";
-          }}
-          showWeekdayLabels
-        />
-        {/* Custom styles for heatmap cells */}
-        <style>{`
-          .color-empty { fill: #232323; }
-          .color-scale-1 { fill: #ec4899; }
-          .color-scale-2 { fill: #a78bfa; }
-          .color-scale-3 { fill: #38bdf8; }
-        `}
-        </style>
+        {/* Heatmap placeholder, bigger and flexible */}
+        <div className="bg-black/50 border border-white/20 col-span-2 h-full rounded-xl flex flex-col items-center justify-center text-white text-2xl shadow-xl min-h-[300px]">
+          Heatmap placeholder
+        </div>
       </div>
-    </main>
-  </div>
-);
+    </div>
+    </>
+  );
+};
 
 export default Profile;
