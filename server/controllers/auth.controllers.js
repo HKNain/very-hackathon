@@ -4,8 +4,12 @@ import {generateTokenAndSetCookie} from "../utils/jwtToken.js";
  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 import { v4 as uuidv4 } from 'uuid';
 import blackListedToken from "./blacklistToken.controllers.js";
- const tokenId  = uuidv4();
 
+// * To generate unique Ids 
+const tokenId  = uuidv4();
+
+
+//  * To create acc
 export const signup = async (req, res) => {
   try {
     const {
@@ -63,6 +67,9 @@ export const signup = async (req, res) => {
   }
 };
 
+//  * To create login
+
+
 export const login = async (req, res) => {
   try {
     const {  password, userName  } = req.body;
@@ -102,6 +109,10 @@ export const login = async (req, res) => {
   }
 };
 
+//  * To create logout 
+// * Blacklisted Tokens are like before loggin out just store those token 
+
+
 export const logout = async (req, res) => {
   try {
     await blackListedToken(tokenId)
@@ -113,6 +124,9 @@ export const logout = async (req, res) => {
   }
 };
 
+//  * To create deleteAcc  
+// * Blacklisted Tokens are like before delete out just store those token 
+
 export const userAccountDelete = async (req, res ) =>{
   try {
     const user = req.user;
@@ -123,9 +137,9 @@ export const userAccountDelete = async (req, res ) =>{
         sameSite: "strict",
       });
     await User.findByIdAndDelete(user._id);
-    res.status(200).json({ message: "Logged Out Successfully" });
+    res.status(200).json({ message: "account deleted  Successfully" });
   } catch (error) {
-    console.log("Error in Logout Controller", error.message);
+    console.log("Error in userAccountDelete Controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }

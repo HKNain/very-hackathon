@@ -20,6 +20,25 @@ const userSchema = new mongoose.Schema({
         unique : true,
         minlength: 6,
     },  
+    totalCoins : {
+        type : Number ,
+        default :0
+    }, 
+    regularlyComingToWebsiteDays : {
+      
+        type : Number ,
+        default : 0
+
+    },
+
+    taskHistory  : {
+        type : Array , 
+        default : []
+    } , 
+    Achievements : {
+        type : Array ,
+        default : []
+    }
 
 });
 

@@ -15,7 +15,7 @@ const protectRoute = async (req, res, next) => {
         return res.status(401).json({ error: "Unauthorized - Invalid token" });
     }
     const tokenId = decoded.tokenId ;
-    console.log ( tokenId )
+   
 
    const isBlackListedToken = await tokenStoredToBeBlackListed.findOne({
         SchemaId: tokenId
