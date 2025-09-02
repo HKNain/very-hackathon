@@ -70,6 +70,16 @@ export const createTaskTracker = async  (req, res) => {
       createdAt : totalDays,
       isChallenger
     })
+  //   let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+
+  //     const now = new Date();
+  //     const notification = {
+  //       message: `Your Task has Been created of Type ${taskType}
+  //       and duration is ${taskDuration}`,
+  //       expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
+  //       createdAt: now.toISOString(),
+  // };
+  //   localStorage.setItem("notifications", JSON.stringify(notifications));
     return res.status(200).json({success : "task has been created "},
       taskCreated
     )
@@ -153,7 +163,8 @@ export const getTaskTracker = async (req, res) => {
               taskType: track.taskType,
               taskDuration: track.taskDuration,
               difficulty: track.difficulty,
-              challenger : `${track.isChallenger?"True" :"" }`
+              challenger : `${track.isChallenger?"True" :"" }`,
+              trackId : track.id ,
               
             });
             userDetails.Achievements.push(
@@ -191,6 +202,7 @@ export const getTaskTracker = async (req, res) => {
               taskDuration: track.taskDuration,
               difficulty: track.difficulty,
               editedAt: track.editedAt,
+              trackId : track.id 
             };
           } else {
             await usertaskTracker.findByIdAndDelete(track._id);
@@ -296,7 +308,7 @@ export const updateTaskTracker = async (req, res) => {
         if ( task  !== "isExtraDurationClicked" && task !=="isExtraDurationByPoints" && task !=="isStreaksClicked") updatedObj[task] = req.body[task];
       }
     }
-    console.log (isStreaksClicked)
+    
     if (isStreaksClicked){
       let streaks = TaskTracker.streaks
       streaks+=1 
@@ -310,6 +322,17 @@ export const updateTaskTracker = async (req, res) => {
 
     if (isExtraDurationClicked) {
       if (user.difficulty === "easy" || TaskTracker.isExtraDurationCardCompleted) {
+        let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+
+      const now = new Date();
+      const notification = {
+        message: `Your ExtraDurationCardCompleted has Been exceeded for Type ${TaskTracker.taskType}
+        and duration is ${taskDuration}`,
+        expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
+        createdAt: now.toISOString(),
+  };
+    localStorage.setItem("notifications", JSON.stringify(notifications));
+
         return res.status(400).json({ error: "Exceeded overLimit of extraDuration" });
       } else {
         extraDuration += 1;
@@ -325,6 +348,16 @@ export const updateTaskTracker = async (req, res) => {
         updatedObj.extraDurationByPoints = extraDurationByPoints;
 
         userDetails.totalCoins -= 20;
+        let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+
+      const now = new Date();
+      const notification = {
+        message: `Your points has  Been deducted `,
+        expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
+        createdAt: now.toISOString(),
+  };
+    localStorage.setItem("notifications", JSON.stringify(notifications));
+
         await userDetails.save();
       }
     }
@@ -348,6 +381,16 @@ export const updateTaskTracker = async (req, res) => {
       { $set: updatedObj },
       { new: true }
     );
+    let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+
+      const now = new Date();
+      const notification = {
+        message: `Your Task has Been Updated for Type ${TaskTracker.taskType}`,
+        
+        expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
+        createdAt: now.toISOString(),
+  };
+    localStorage.setItem("notifications", JSON.stringify(notifications));
 
     return res
       .status(200)
@@ -366,7 +409,15 @@ export const  deleteTaskTracker = async(req, res ) =>{
   try {
     const {id} = req.body ;
     const deletedtaskTracker = await usertaskTracker.findByIdAndDelete(id)
-    
+    let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+
+      const now = new Date();
+      const notification = {
+        message: `Your Task has Been deleted of Type ${deleteTaskTracker.taskType}`,
+        expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
+        createdAt: now.toISOString(),
+  };
+    localStorage.setItem("notifications", JSON.stringify(notifications));
 
     return res.status(200).json({success : "task has been deleted successfully refresh the page "});
 
