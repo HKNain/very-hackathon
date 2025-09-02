@@ -143,3 +143,15 @@ export const userAccountDelete = async (req, res ) =>{
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+// export const getUserProfile = ( req , res ) => {
+//   try {
+//     const user = req.user 
+//     const Achievements = user.Achievements || "No such Achievements yet ! "
+//     const regularlyComingToWebsiteDays = user.regularlyComingToWebsiteDays 
+//     const userName = user.userName  
+//   } catch (error) {
+//     console.log("Error in getUserProfile Controller", error.message);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// }

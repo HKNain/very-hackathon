@@ -50,7 +50,6 @@ export const isRegularlyUserComing = async (req, res, next) => {
 
         if (diffDays === 1) {
           regularDaysUserCome += 1;
-
           const daysComeAchievemnets = achievementForDaysCome(regularDaysUserCome);
           if (daysComeAchievemnets != null) {
             userDetails.Achievements.push(daysComeAchievemnets);
