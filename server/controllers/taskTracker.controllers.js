@@ -322,7 +322,7 @@ export const updateTaskTracker = async (req, res) => {
 
     if (isExtraDurationClicked) {
       if (user.difficulty === "easy" || TaskTracker.isExtraDurationCardCompleted) {
-        let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+        // let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
 
       const now = new Date();
       const notification = {
@@ -331,7 +331,7 @@ export const updateTaskTracker = async (req, res) => {
         expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
         createdAt: now.toISOString(),
   };
-    localStorage.setItem("notifications", JSON.stringify(notifications));
+    // localStorage.setItem("notifications", JSON.stringify(notifications));
 
         return res.status(400).json({ error: "Exceeded overLimit of extraDuration" });
       } else {
@@ -348,7 +348,7 @@ export const updateTaskTracker = async (req, res) => {
         updatedObj.extraDurationByPoints = extraDurationByPoints;
 
         userDetails.totalCoins -= 20;
-        let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+        // let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
 
       const now = new Date();
       const notification = {
@@ -356,7 +356,7 @@ export const updateTaskTracker = async (req, res) => {
         expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
         createdAt: now.toISOString(),
   };
-    localStorage.setItem("notifications", JSON.stringify(notifications));
+    // localStorage.setItem("notifications", JSON.stringify(notifications));
 
         await userDetails.save();
       }
@@ -381,7 +381,7 @@ export const updateTaskTracker = async (req, res) => {
       { $set: updatedObj },
       { new: true }
     );
-    let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+    // let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
 
       const now = new Date();
       const notification = {
@@ -390,7 +390,7 @@ export const updateTaskTracker = async (req, res) => {
         expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
         createdAt: now.toISOString(),
   };
-    localStorage.setItem("notifications", JSON.stringify(notifications));
+    // localStorage.setItem("notifications", JSON.stringify(notifications));
 
     return res
       .status(200)
@@ -409,7 +409,7 @@ export const  deleteTaskTracker = async(req, res ) =>{
   try {
     const {id} = req.body ;
     const deletedtaskTracker = await usertaskTracker.findByIdAndDelete(id)
-    let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+    // let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
 
       const now = new Date();
       const notification = {
@@ -417,7 +417,7 @@ export const  deleteTaskTracker = async(req, res ) =>{
         expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
         createdAt: now.toISOString(),
   };
-    localStorage.setItem("notifications", JSON.stringify(notifications));
+    // localStorage.setItem("notifications", JSON.stringify(notifications));
 
     return res.status(200).json({success : "task has been deleted successfully refresh the page "});
 
