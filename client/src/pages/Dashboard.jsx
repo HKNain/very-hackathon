@@ -3,6 +3,9 @@ import NavbarDashboard from "../components/layout/NavbarDashboard";
 import berry1 from "../components/png/berry1.png";
 import berry2 from "../components/png/berry2.png";
 import { api } from "../utils/axios.js";
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css'; 
+import '../CalendarCustom.css';
 
 const floatingPNGs = [berry1, berry2, berry1, berry2, berry1, berry2];
 const getRandomPosition = () => {
@@ -185,7 +188,7 @@ const Dashboard = () => {
         {/* top bar with CREATE button */}
         <div className="w-full flex justify-end">
           <button
-            className="rounded-lg px-4 py-2 bg-pink-500 text-white font-semibold shadow hover:bg-pink-600"
+            className="rounded-lg px-4 py-2 mb-2 bg-pink-500 text-white font-semibold shadow hover:bg-pink-600"
             onClick={() => setShowCreateModal(true)}
           >
             CREATE
@@ -209,7 +212,7 @@ const Dashboard = () => {
           />
         ))}
 
-        <div className="relative z-10 w-full flex flex-row gap-6">
+        <div className="relative z-10 w-full flex flex-row gap-6 mb-2">
           <div className="flex-1 flex overflow-x-auto gap-4 pb-2">
             {(loading ? Array(3).fill({}) : normalChallenges).map(
               (challenge, idx) => (
@@ -231,9 +234,8 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="flex-shrink-0 w-[320px] bg-black/40 border border-white/20 rounded-xl h-[120px] flex flex-col items-center justify-center shadow-lg backdrop-blur-md text-white">
-            <span>Calendar (Coming Soon)</span>
-            <div className="mt-2">Streak: {streak ?? "—"}</div>
+          <div className="flex-shrink-0 w-[340px] bg-black/40 border border-white/20 rounded-xl h-[200px] flex flex-col items-center justify-center shadow-lg backdrop-blur-md text-white">
+            <Calendar />
           </div>
         </div>
 
