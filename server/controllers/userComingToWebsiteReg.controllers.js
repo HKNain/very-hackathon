@@ -80,8 +80,7 @@ export const showRegularComingStreak =async (req, res) =>{
     try {
         const user = req.user 
         
-        return res.status(200).json({success: "Get RegularComingStreak"},
-            user.regularlyComingToWebsiteDays
+        return res.status(200).json({success: "Get RegularComingStreak", regularlyComingToWebsiteDays: user.regularlyComingToWebsiteDays},
         )
         
     } catch (error) {

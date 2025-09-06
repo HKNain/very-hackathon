@@ -1,10 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import veryLogo from "../png/veryLogo.png";
 import { NavLink } from "react-router-dom";
 import { Bell, Flame } from "lucide-react";
+import { api } from "../../utils/axios";
 
 const NavbarDashboard = () => {
-  // Close profile dropdown when clicking outside
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    // Fetch the user's streak from the backend
+    api
+      .get("/dashboard/streak", { withCredentials: true }) 
+      .then((res) => {
+        setStreak(res.data.regularlyComingToWebsiteDays || 0);
+      })
+      .catch(() => {
+        setStreak(0);
+      });
+  }, []);
 
   const navBarOptionsStyle =
     "border border-gray-500 p-2 rounded-lg bg-white/10 text-white " +
@@ -71,12 +84,10 @@ const NavbarDashboard = () => {
           <Bell color="#FFA500" size={24} strokeWidth={2} fill="#FFA500" />
           5
         </div>
-
         <div className="flex flex-row text-2xl justify-center items-center text-white cursor-pointer gap-1">
           <Flame color="#FFA500" size={24} strokeWidth={2} fill="#FFA500" />
-          5
+          {streak}
         </div>
-
         <NavLink to="/profile">
           <img
             src="https://i.pravatar.cc/300"

@@ -20,7 +20,6 @@ const getRandomPosition = () => {
 const Dashboard = () => {
   const [normalChallenges, setNormalChallenges] = useState([]);
   const [activeChallenges, setActiveChallenges] = useState([]);
-  const [streak, setStreak] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // modal + form state
@@ -77,14 +76,6 @@ const Dashboard = () => {
         userHistoryTask.length ? userHistoryTask : userAchievements
       );
 
-      // streak
-      const streakRes = await api.get("/dashboard/streak").catch(() => ({}));
-      const streakVal =
-        streakRes?.data?.user?.regularlyComingToWebsiteDays ||
-        streakRes?.data?.regularlyComingToWebsiteDays ||
-        streakRes?.data?.success ||
-        streakRes?.data;
-      setStreak(typeof streakVal === "number" ? streakVal : null);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
@@ -145,24 +136,6 @@ const Dashboard = () => {
       alert(error?.response?.data?.error || "Failed to create task");
     } finally {
       setCreating(false);
-    }
-  };
-
-  const deleteTask = async (id) => {
-    try {
-      const response = await api.delete("/dashboard/deletetask", {
-        data: { id },
-      });
-
-      if (response.status === 200) {
-        setActiveChallenges((prevChallenges) =>
-          prevChallenges.filter((challenge) => challenge.id !== id)
-        );
-      } else {
-        alert(response.data.error || "Failed to delete task");
-      }
-    } catch (error) {
-      console.error("Delete task error:", error);
     }
   };
 
@@ -267,7 +240,7 @@ const Dashboard = () => {
                     </button>
                     <button
                       className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
-                      onClick={() => deleteTask(challenge.id)}
+                      
                     >
                       Delete
                     </button>
