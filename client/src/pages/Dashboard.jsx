@@ -3,9 +3,9 @@ import NavbarDashboard from "../components/layout/NavbarDashboard";
 import berry1 from "../components/png/berry1.png";
 import berry2 from "../components/png/berry2.png";
 import { api } from "../utils/axios.js";
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css'; 
-import '../CalendarCustom.css';
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import "../CalendarCustom.css";
 
 const floatingPNGs = [berry1, berry2, berry1, berry2, berry1, berry2];
 const getRandomPosition = () => {
@@ -41,7 +41,7 @@ const Dashboard = () => {
     duration: Math.random() * 6 + 6,
   }));
 
-  // moved fetchData outside useEffect so it can be reused after creation
+  // Fetch data (tasks, achievements, etc.)
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -50,7 +50,7 @@ const Dashboard = () => {
       const tasks = tasksRes?.data?.tasks || [];
       setActiveChallenges(
         tasks.map((t) => ({
-          id: t._id,
+          id: t.trackId,
           title: t.taskName,
           streak: t.streaks || 0,
           achieved: 0,
@@ -58,6 +58,7 @@ const Dashboard = () => {
           taskDetails: t.taskDetails,
           taskDuration: t.taskDuration,
           difficulty: t.difficulty,
+          
         }))
       );
 
@@ -72,10 +73,7 @@ const Dashboard = () => {
       const userHistoryTask =
         achRes?.data?.userHistoryTask || achRes?.data?.taskHistory || [];
       // use history as normalChallenges placeholder if available
-      setNormalChallenges(
-        userHistoryTask.length ? userHistoryTask : userAchievements
-      );
-
+      setNormalChallenges(userHistoryTask.length ? userHistoryTask : userAchievements);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
@@ -93,8 +91,7 @@ const Dashboard = () => {
     if (!form.taskDetails.trim()) return "Task details are required";
     if (!form.taskType.trim()) return "Task type is required";
     const durationNum = Number(form.taskDuration);
-    if (!durationNum || durationNum < 7)
-      return "Duration must be a number >= 7";
+    if (!durationNum || durationNum < 7) return "Duration must be a number >= 7";
     return null;
   };
 
@@ -139,15 +136,37 @@ const Dashboard = () => {
     }
   };
 
+  // Delete task function
+  const deleteTask = async (id) => {
+    if (!id) {
+      alert("Task id missing, cannot delete.");
+      return;
+    }
+    try {
+      const response = await api.delete("/dashboard/deletetask", {
+        data: { id }, // sending id in request body as API expects
+      });
+
+      if (response.status === 200) {
+        // Update activeChallenges and remove deleted task
+        setActiveChallenges((prev) => prev.filter((task) => task.id !== id));
+        alert("Task deleted successfully");
+      } else {
+        alert(response.data.error || "Failed to delete task");
+      }
+    } catch (err) {
+      console.error("Error deleting task:", err);
+      alert("Error deleting task");
+    }
+  };
+
   const StreakBar = ({ streak }) => (
     <div className="w-full h-5 rounded bg-white/20 overflow-hidden relative">
       <div
         className="h-full bg-gradient-to-r from-pink-400 to-blue-400 rounded"
         style={{ width: `${Math.min((streak || 0) * 8, 100)}%` }}
       />
-      <span className="absolute left-2 top-0 text-xs text-white font-semibold">
-        {streak ?? 0} day streak
-      </span>
+      <span className="absolute left-2 top-0 text-xs text-white font-semibold">{streak ?? 0} day streak</span>
     </div>
   );
 
@@ -187,24 +206,15 @@ const Dashboard = () => {
 
         <div className="relative z-10 w-full flex flex-row gap-6 mb-2">
           <div className="flex-1 flex overflow-x-auto gap-4 pb-2">
-            {(loading ? Array(3).fill({}) : normalChallenges).map(
-              (challenge, idx) => (
-                <div
-                  key={challenge.id || idx}
-                  className="min-w-[180px] h-[80px] bg-black/40 border border-white/20 rounded-xl p-3 flex flex-col justify-between shadow-lg backdrop-blur-md cursor-pointer text-white hover:scale-105 transition-transform"
-                >
-                  <div className="font-bold">
-                    {challenge.title || challenge.taskName || "No Title"}
-                  </div>
-                  <div className="text-xs">
-                    {challenge.desc ||
-                      challenge.taskDetails ||
-                      challenge.description ||
-                      ""}
-                  </div>
-                </div>
-              )
-            )}
+            {(loading ? Array(3).fill({}) : normalChallenges).map((challenge, idx) => (
+              <div
+                key={challenge.id || idx}
+                className="min-w-[180px] h-[80px] bg-black/40 border border-white/20 rounded-xl p-3 flex flex-col justify-between shadow-lg backdrop-blur-md cursor-pointer text-white hover:scale-105 transition-transform"
+              >
+                <div className="font-bold">{challenge.title || challenge.taskName || "No Title"}</div>
+                <div className="text-xs">{challenge.desc || challenge.taskDetails || challenge.description || ""}</div>
+              </div>
+            ))}
           </div>
 
           <div className="flex-shrink-0 w-[340px] bg-black/40 border border-white/20 rounded-xl h-[200px] flex flex-col items-center justify-center shadow-lg backdrop-blur-md text-white">
@@ -214,40 +224,36 @@ const Dashboard = () => {
 
         <div className="relative z-10 w-full flex flex-row gap-6">
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {(loading ? Array(6).fill({}) : activeChallenges).map(
-              (challenge) => (
-                <div
-                  key={challenge.id}
-                  className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
-                >
-                  <div className="text-center font-bold text-2xl mb-2">
-                    {challenge.title || "Untitled"}
+            {(loading ? Array(6).fill({}) : activeChallenges).map((challenge) => (
+              <div
+                key={challenge.id}
+                className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
+              >
+                <div className="text-center font-bold text-2xl mb-2">{challenge.title || "Untitled"}</div>
+                <div className="flex flex-row justify-between gap-5">
+                  <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
+                    <div className="font-semibold">Achieved</div>
+                    <div>{challenge.achieved ?? 0}</div>
                   </div>
-                  <div className="flex flex-row justify-between gap-5">
-                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                      <div className="font-semibold">Achieved</div>
-                      <div>{challenge.achieved ?? 0}</div>
-                    </div>
-                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                      <div className="font-semibold">Not Achieved</div>
-                      <div>{challenge.notAchieved ?? 0}</div>
-                    </div>
-                  </div>
-                  <StreakBar streak={challenge.streak} />
-                  <div className="flex flex-row justify-between mt-2 gap-4">
-                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">
-                      Edit
-                    </button>
-                    <button
-                      className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
-                      
-                    >
-                      Delete
-                    </button>
+                  <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
+                    <div className="font-semibold">Not Achieved</div>
+                    <div>{challenge.notAchieved ?? 0}</div>
                   </div>
                 </div>
-              )
-            )}
+                <StreakBar streak={challenge.streak} />
+                <div className="flex flex-row justify-between mt-2 gap-4">
+                  <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">
+                    Edit
+                  </button>
+                  <button
+                    className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
+                    onClick={() => deleteTask(challenge.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="flex-shrink-0 w-[320px] bg-black/40 border border-white/20 rounded-xl h-auto min-h-[480px] flex items-center justify-center shadow-lg backdrop-blur-md text-white font-semibold text-xl">
@@ -259,10 +265,7 @@ const Dashboard = () => {
       {/* Create Task Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => !creating && setShowCreateModal(false)}
-          />
+          <div className="absolute inset-0 bg-black/60" onClick={() => !creating && setShowCreateModal(false)} />
           <form
             onSubmit={handleCreateSubmit}
             className="relative z-50 w-full max-w-xl bg-[#0b0b0f] rounded-xl border border-white/20 p-6 shadow-xl"
@@ -276,33 +279,25 @@ const Dashboard = () => {
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Name"
                 value={form.taskName}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, taskName: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, taskName: e.target.value }))}
               />
               <input
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Image URL"
                 value={form.taskImage}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, taskImage: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, taskImage: e.target.value }))}
               />
               <input
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Type (e.g. gym)"
                 value={form.taskType}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, taskType: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, taskType: e.target.value }))}
               />
               <textarea
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Details"
                 value={form.taskDetails}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, taskDetails: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, taskDetails: e.target.value }))}
               />
               <input
                 className="p-3 rounded bg-black/40 text-white"
@@ -310,17 +305,13 @@ const Dashboard = () => {
                 type="number"
                 min={7}
                 value={form.taskDuration}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, taskDuration: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, taskDuration: e.target.value }))}
               />
               <label className="flex items-center gap-2 text-white">
                 <input
                   type="checkbox"
                   checked={form.isChallenger}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, isChallenger: e.target.checked }))
-                  }
+                  onChange={(e) => setForm((p) => ({ ...p, isChallenger: e.target.checked }))}
                 />
                 Is Challenger
               </label>
@@ -334,11 +325,7 @@ const Dashboard = () => {
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={creating}
-                className="px-4 py-2 rounded bg-pink-500 text-white"
-              >
+              <button type="submit" disabled={creating} className="px-4 py-2 rounded bg-pink-500 text-white">
                 {creating ? "Creating..." : "Create Task"}
               </button>
             </div>
