@@ -10,17 +10,17 @@ const cardData = [
   {
     title: "Challenges",
     route: "/challenges",
-    info: "Completed 5 out of 10 challenges",
+    info: "See all your challenges",
   },
   {
     title: "Achievements",
     route: "/achievements",
-    info: "Top Performer Badge unlocked",
+    info: "See all your achievements",
   },
   {
     title: "Badges",
     route: "/badges",
-    info: "Badge: Consistency",
+    info: "See all your badges",
   },
 ];
 
@@ -70,13 +70,6 @@ const Profile = () => {
         );
         setTaskHistory(Array.isArray(userHistory) ? userHistory : []);
 
-        const streakRes = await api.get("/dashboard/streak").catch(() => ({}));
-        const streakVal =
-          streakRes?.data?.user?.regularlyComingToWebsiteDays ||
-          streakRes?.data?.regularlyComingToWebsiteDays ||
-          null;
-        setStreak(typeof streakVal === "number" ? streakVal : null);
-
         // totalCoins might be available inside achievements response or need a dedicated endpoint.
         // try common fields
         const coins =
@@ -91,6 +84,28 @@ const Profile = () => {
 
     fetchProfile();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/api/auth/logout"); 
+      // Optionally clear local storage/session if needed
+      navigate("/login"); 
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
+
+  useEffect(() => {
+      // Fetch the user's streak from the backend
+      api
+        .get("/dashboard/streak", { withCredentials: true }) 
+        .then((res) => {
+          setStreak(res.data.regularlyComingToWebsiteDays || 0);
+        })
+        .catch(() => {
+          setStreak(0);
+        });
+    }, []);
 
   return (
     <>
@@ -134,13 +149,13 @@ const Profile = () => {
               email@example.com
             </div>
             <div className="text-white">Coins: {totalCoins}</div>
-            <div className="text-white mt-1">Streak: {streak ?? "—"}</div>
+            <div className="text-white mt-1">Streak: {streak}</div>
           </div>
           <div className="w-full flex flex-col gap-4 mb-8 bg-black/70 rounded-xl shadow-lg p-4">
             <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md">
               Delete Account
             </button>
-            <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md">
+            <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md" onClick={handleLogout}>
               Sign Out
             </button>
           </div>

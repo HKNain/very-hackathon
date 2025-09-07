@@ -6,6 +6,7 @@ import { api } from "../utils/axios.js";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../CalendarCustom.css";
+import toast from "react-hot-toast"
 
 const floatingPNGs = [berry1, berry2, berry1, berry2, berry1, berry2];
 const getRandomPosition = () => {
@@ -48,8 +49,9 @@ const Dashboard = () => {
       // get tasks (active challenges)
       const tasksRes = await api.get("/dashboard/gettasks");
       const tasks = tasksRes?.data?.tasks || [];
+
       setActiveChallenges(
-        tasks.map((t) => ({
+        tasks.filter((t) => !t.isChallenger).map((t) => ({
           id: t.trackId,
           title: t.taskName,
           streak: t.streaks || 0,
@@ -62,18 +64,20 @@ const Dashboard = () => {
         }))
       );
 
-      // get achievements & history (server controller may respond variably)
-      const achRes = await api.get("/dashboard/achievements").catch(() => ({}));
-      // try to read common shapes
-      const userAchievements =
-        achRes?.data?.userAchievements ||
-        achRes?.data?.Achievements ||
-        achRes?.data?.achievements ||
-        [];
-      const userHistoryTask =
-        achRes?.data?.userHistoryTask || achRes?.data?.taskHistory || [];
-      // use history as normalChallenges placeholder if available
-      setNormalChallenges(userHistoryTask.length ? userHistoryTask : userAchievements);
+      setNormalChallenges(
+        tasks.filter((t) => !!t.isChallenger).map((t) => ({
+          id: t.trackId,
+          title: t.taskName,
+          streak: t.streaks || 0,
+          achieved: 0,
+          notAchieved: 0,
+          taskDetails: t.taskDetails,
+          taskDuration: t.taskDuration,
+          difficulty: t.difficulty,
+          
+        }))
+      );
+
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
@@ -139,7 +143,7 @@ const Dashboard = () => {
   // Delete task function
   const deleteTask = async (id) => {
     if (!id) {
-      alert("Task id missing, cannot delete.");
+      toast.error("Id not present")
       return;
     }
     try {
@@ -148,15 +152,13 @@ const Dashboard = () => {
       });
 
       if (response.status === 200) {
-        // Update activeChallenges and remove deleted task
         setActiveChallenges((prev) => prev.filter((task) => task.id !== id));
-        alert("Task deleted successfully");
+        toast.success("Task deleted Successfully")
       } else {
-        alert(response.data.error || "Failed to delete task");
+        toast.error("Failed to delete Task")
       }
     } catch (err) {
       console.error("Error deleting task:", err);
-      alert("Error deleting task");
     }
   };
 
