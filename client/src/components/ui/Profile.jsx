@@ -5,11 +5,12 @@ import berry1 from "../png/berry1.png";
 import berry2 from "../png/berry2.png";
 import NavbarDashboard from "../layout/NavbarDashboard";
 import { api } from "../../utils/axios";
+import toast from "react-hot-toast"
 
 const cardData = [
   {
     title: "Challenges",
-    route: "/challenges",
+    route: "/dashboard",
     info: "See all your challenges",
   },
   {
@@ -95,6 +96,16 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      await api.delete("/api/auth/accountdelete");
+      toast.success("Account Deleted Successfully");
+      navigate("/");
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   useEffect(() => {
       // Fetch the user's streak from the backend
       api
@@ -152,7 +163,7 @@ const Profile = () => {
             <div className="text-white mt-1">Streak: {streak}</div>
           </div>
           <div className="w-full flex flex-col gap-4 mb-8 bg-black/70 rounded-xl shadow-lg p-4">
-            <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md">
+            <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md" onClick={handleDeleteAccount}>
               Delete Account
             </button>
             <button className="bg-pink-600/80 w-full rounded-full py-2 text-white font-semibold shadow-md" onClick={handleLogout}>
@@ -187,38 +198,7 @@ const Profile = () => {
 
           {/* Heatmap placeholder, bigger and flexible */}
           <div className="bg-black/50 border border-white/20 col-span-2 h-full rounded-xl flex flex-col items-start justify-start text-white p-6 shadow-xl min-h-[300px]">
-            <h2 className="text-2xl font-bold mb-4">Achievements</h2>
-            {loading ? (
-              <div>Loading achievements...</div>
-            ) : achievements.length ? (
-              <ul className="list-disc pl-6 space-y-2">
-                {achievements.map((a, idx) => (
-                  <li key={idx} className="text-white/90">
-                    {typeof a === "string" ? a : a.title || JSON.stringify(a)}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div>No achievements yet.</div>
-            )}
-
-            <h2 className="text-2xl font-bold mt-6 mb-4">Task History</h2>
-            {taskHistory.length ? (
-              <div className="grid grid-cols-1 gap-3 w-full">
-                {taskHistory.map((t, idx) => (
-                  <div key={idx} className="bg-black/40 p-3 rounded">
-                    <div className="font-semibold">
-                      {t.taskName || t.taskDetails || "Task"}
-                    </div>
-                    <div className="text-sm text-gray-300">
-                      {t.taskDetails || ""}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div>No task history available.</div>
-            )}
+            
           </div>
         </div>
       </div>

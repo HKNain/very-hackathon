@@ -65,7 +65,7 @@ const Dashboard = () => {
       );
 
       setNormalChallenges(
-        tasks.filter((t) => !!t.isChallenger).map((t) => ({
+        tasks.filter((t) => t.isChallenger).map((t) => ({
           id: t.trackId,
           title: t.taskName,
           streak: t.streaks || 0,
@@ -130,7 +130,7 @@ const Dashboard = () => {
       });
       await fetchData();
       if (res?.data?.success) {
-        alert(res.data.success);
+        toast.success("Task created Successfully")
       }
     } catch (error) {
       console.error("Create task error:", error);
@@ -208,9 +208,9 @@ const Dashboard = () => {
 
         <div className="relative z-10 w-full flex flex-row gap-6 mb-2">
           <div className="flex-1 flex overflow-x-auto gap-4 pb-2">
-            {(loading ? Array(3).fill({}) : normalChallenges).map((challenge, idx) => (
+            {(loading ? Array(3).fill({}) : normalChallenges).map((challenge) => (
               <div
-                key={challenge.id || idx}
+                key={challenge.id}
                 className="min-w-[180px] h-[80px] bg-black/40 border border-white/20 rounded-xl p-3 flex flex-col justify-between shadow-lg backdrop-blur-md cursor-pointer text-white hover:scale-105 transition-transform"
               >
                 <div className="font-bold">{challenge.title || challenge.taskName || "No Title"}</div>
@@ -259,7 +259,7 @@ const Dashboard = () => {
           </div>
 
           <div className="flex-shrink-0 w-[320px] bg-black/40 border border-white/20 rounded-xl h-auto min-h-[480px] flex items-center justify-center shadow-lg backdrop-blur-md text-white font-semibold text-xl">
-            Trending
+            Trending (Upcoming)
           </div>
         </div>
       </div>
