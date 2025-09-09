@@ -6,6 +6,10 @@ import berry2 from "../png/berry2.png";
 import NavbarDashboard from "../layout/NavbarDashboard";
 import { api } from "../../utils/axios";
 import toast from "react-hot-toast"
+import useLoginDates from "../../hooks/Heatmap";
+import CalendarHeatmap from "react-calendar-heatmap";
+import "react-calendar-heatmap/dist/styles.css";
+
 
 const cardData = [
   {
@@ -95,6 +99,13 @@ const Profile = () => {
       console.error("Logout failed", err);
     }
   };
+
+  const loginDates = useLoginDates();
+
+  const heatmapData = loginDates.map((date) => ({
+    date,
+    count: 1,
+  }));
 
   const handleDeleteAccount = async () => {
     try {
@@ -198,7 +209,19 @@ const Profile = () => {
 
           {/* Heatmap placeholder, bigger and flexible */}
           <div className="bg-black/50 border border-white/20 col-span-2 h-full rounded-xl flex flex-col items-start justify-start text-white p-6 shadow-xl min-h-[300px]">
-            
+            <CalendarHeatmap
+              startDate={new Date(new Date().getFullYear(), 0, 1)}
+              endDate={new Date(new Date().getFullYear(), 11, 31)}
+              values={heatmapData}
+              classForValue={(value) => {
+                if (!value) return "color-empty";
+                return value.count === 1 ? "color-visited" : "color-empty";
+              }}
+            />
+            <style>{`
+              .color-empty { fill: #e0e0e0; }
+              .color-visited { fill: #22c55e; }
+            `}</style>
           </div>
         </div>
       </div>
