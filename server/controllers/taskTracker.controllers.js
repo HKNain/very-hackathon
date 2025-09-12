@@ -213,7 +213,8 @@ export const getTaskTracker = async (req, res) => {
               difficulty: track.difficulty,
               editedAt: track.editedAt,
               isChallenger : track.isChallenger,
-              taskImage : track.taskImage
+              taskImage : track.taskImage , 
+              streaks : track.streaks
             
             };
           } else {
