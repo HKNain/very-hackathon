@@ -38,6 +38,13 @@ const Dashboard = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
 
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    taskDetails: "",
+    // add more fields here if editable
+  });
+  const [editLoading, setEditLoading] = useState(false);
+
   const randomPositions = floatingPNGs.map(() => ({
     ...getRandomPosition(),
     size: 90 + Math.random() * 35,
@@ -99,8 +106,73 @@ const Dashboard = () => {
     if (!form.taskDetails.trim()) return "Task details are required";
     if (!form.taskType.trim()) return "Task type is required";
     const durationNum = Number(form.taskDuration);
-    if (!durationNum || durationNum < 7) return "Duration must be a number >= 7";
+    if (!durationNum || durationNum < 7)
+      return "Duration must be a number >= 7";
     return null;
+  };
+
+  const handleEditClick = (task) => {
+    setEditingTaskId(task.id);
+    setEditForm({
+      taskDetails: task.taskDetails || "",
+      // prefill other editable fields here if needed
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingTaskId(null);
+    setEditForm({ taskDetails: "" });
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((p) => ({ ...p, [name]: value }));
+  };
+
+  const saveEdit = async () => {
+    if (!editingTaskId) return;
+
+    setEditLoading(true);
+
+    try {
+      const payload = {
+        id: editingTaskId,
+        taskDetails: editForm.taskDetails,
+        // add other changed fields here
+      };
+
+      const res = await api.patch("/dashboard/updatetask", payload);
+
+      if (res?.data?.success) {
+        // Update the task in activeChallenges and normalChallenges state
+        const updatedTask = res.data.task;
+
+        setActiveChallenges((prev) =>
+          prev.map((t) =>
+            t.id === updatedTask._id || t.id === updatedTask.id
+              ? updatedTask
+              : t
+          )
+        );
+        setNormalChallenges((prev) =>
+          prev.map((t) =>
+            t.id === updatedTask._id || t.id === updatedTask.id
+              ? updatedTask
+              : t
+          )
+        );
+
+        toast.success("Task updated successfully");
+        cancelEdit();
+      } else {
+        toast.error("Failed to update task");
+      }
+    } catch (err) {
+      console.error("Update task error:", err);
+      toast.error("Error updating task");
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   // Handle file input change and preview
@@ -175,7 +247,9 @@ const Dashboard = () => {
       return;
     }
     try {
-      const response = await api.delete("/dashboard/deletetask", { data: { id } });
+      const response = await api.delete("/dashboard/deletetask", {
+        data: { id },
+      });
       if (response.status === 200) {
         setActiveChallenges((prev) => prev.filter((task) => task.id !== id));
         setNormalChallenges((prev) => prev.filter((task) => task.id !== id));
@@ -210,60 +284,148 @@ const Dashboard = () => {
         {/* Left: Challenges */}
         <div className="flex-1 flex flex-col gap-8 overflow-y-auto max-h-[calc(100vh-8rem)] pr-4">
           <section>
-            <h2 className="text-white font-bold text-3xl mb-4">Normal Challenges</h2>
+            <h2 className="text-white font-bold text-3xl mb-4">
+              Normal Challenges
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {(loading ? Array(3).fill({}) : normalChallenges).map((challenge) => (
-                <div
-                  key={challenge.id}
-                  className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
-                >
-                  <div className="text-center font-bold text-2xl mb-2">{challenge.title || "Untitled"}</div>
-                  <div className="flex flex-row justify-between gap-5">
-                    <img src={challenge.imgSrc} alt={`img-${challenge.title}`} />
+              {(loading ? Array(3).fill({}) : normalChallenges).map(
+                (challenge) => (
+                  <div
+                    key={challenge.id}
+                    className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
+                  >
+                    {editingTaskId === challenge.id ? (
+                      <>
+                        <textarea
+                          name="taskDetails"
+                          value={editForm.taskDetails}
+                          onChange={handleEditChange}
+                          className="p-2 rounded bg-black/20 text-white w-full"
+                          rows={3}
+                        />
+                        <div className="flex gap-4 mt-2">
+                          <button
+                            onClick={saveEdit}
+                            disabled={editLoading}
+                            className="bg-green-600 px-4 py-1 rounded text-white"
+                          >
+                            {editLoading ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="bg-gray-600 px-4 py-1 rounded text-white"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-center font-bold text-2xl mb-2">
+                          {challenge.title || "Untitled"}
+                        </div>
+                        <div className="flex flex-row justify-between gap-5">
+                          <img
+                            src={challenge.imgSrc}
+                            alt={`img-${challenge.title}`}
+                          />
+                        </div>
+                        <p className="mt-2 text-white whitespace-pre-wrap">
+                          {challenge.taskDetails}
+                        </p>
+                        <StreakBar streak={challenge.streak} />
+                        <div className="flex flex-row justify-between mt-2 gap-4">
+                          <button
+                            className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all"
+                            onClick={() => handleEditClick(challenge)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
+                            onClick={() => deleteTask(challenge.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <StreakBar streak={challenge.streak} />
-                  <div className="flex flex-row justify-between mt-2 gap-4">
-                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">
-                      Edit
-                    </button>
-                    <button
-                      className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
-                      onClick={() => deleteTask(challenge.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </section>
 
           <section>
-            <h2 className="text-white font-bold text-3xl mb-4">Active Challenges</h2>
+            <h2 className="text-white font-bold text-3xl mb-4">
+              Active Challenges
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {(loading ? Array(3).fill({}) : activeChallenges).map((challenge) => (
-                <div
-                  key={challenge.id}
-                  className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
-                >
-                  <div className="text-center font-bold text-2xl mb-2">{challenge.title || "Untitled"}</div>
-                  <div className="flex flex-row justify-between gap-5">
-                    <img src={challenge.imgSrc} alt={`img-${challenge.title}`} />
+              {(loading ? Array(3).fill({}) : activeChallenges).map(
+                (challenge) => (
+                  <div
+                    key={challenge.id}
+                    className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
+                  >
+                    {editingTaskId === challenge.id ? (
+                      <>
+                        <textarea
+                          name="taskDetails"
+                          value={editForm.taskDetails}
+                          onChange={handleEditChange}
+                          className="p-2 rounded bg-black/20 text-white w-full"
+                          rows={3}
+                        />
+                        <div className="flex gap-4 mt-2">
+                          <button
+                            onClick={saveEdit}
+                            disabled={editLoading}
+                            className="bg-green-600 px-4 py-1 rounded text-white"
+                          >
+                            {editLoading ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="bg-gray-600 px-4 py-1 rounded text-white"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-center font-bold text-2xl mb-2">
+                          {challenge.title || "Untitled"}
+                        </div>
+                        <div className="flex flex-row justify-between gap-5">
+                          <img
+                            src={challenge.imgSrc}
+                            alt={`img-${challenge.title}`}
+                          />
+                        </div>
+                        <p className="mt-2 text-white whitespace-pre-wrap">
+                          {challenge.taskDetails}
+                        </p>
+                        <StreakBar streak={challenge.streak} />
+                        <div className="flex flex-row justify-between mt-2 gap-4">
+                          <button
+                            className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all"
+                            onClick={() => handleEditClick(challenge)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
+                            onClick={() => deleteTask(challenge.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <StreakBar streak={challenge.streak} />
-                  <div className="flex flex-row justify-between mt-2 gap-4">
-                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">
-                      Edit
-                    </button>
-                    <button
-                      className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
-                      onClick={() => deleteTask(challenge.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </section>
         </div>
@@ -325,7 +487,9 @@ const Dashboard = () => {
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Name"
                 value={form.taskName}
-                onChange={(e) => setForm((p) => ({ ...p, taskName: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, taskName: e.target.value }))
+                }
               />
               <input
                 type="file"
@@ -344,13 +508,17 @@ const Dashboard = () => {
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Type (e.g. gym)"
                 value={form.taskType}
-                onChange={(e) => setForm((p) => ({ ...p, taskType: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, taskType: e.target.value }))
+                }
               />
               <textarea
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Details"
                 value={form.taskDetails}
-                onChange={(e) => setForm((p) => ({ ...p, taskDetails: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, taskDetails: e.target.value }))
+                }
               />
               <input
                 className="p-3 rounded bg-black/40 text-white"
@@ -358,13 +526,17 @@ const Dashboard = () => {
                 type="number"
                 min={7}
                 value={form.taskDuration}
-                onChange={(e) => setForm((p) => ({ ...p, taskDuration: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, taskDuration: e.target.value }))
+                }
               />
               <label className="flex items-center gap-2 text-white">
                 <input
                   type="checkbox"
                   checked={form.isChallenger}
-                  onChange={(e) => setForm((p) => ({ ...p, isChallenger: e.target.checked }))}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, isChallenger: e.target.checked }))
+                  }
                 />
                 Is Challenger
               </label>
