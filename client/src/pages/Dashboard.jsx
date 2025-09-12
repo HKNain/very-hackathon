@@ -53,7 +53,7 @@ const Dashboard = () => {
         tasks
           .filter((t) => !t.isChallenger)
           .map((t) => ({
-            id: t.trackId,
+            id: t.taskId,
             title: t.taskName,
             streak: t.streaks || 0,
             achieved: 0,
@@ -68,7 +68,7 @@ const Dashboard = () => {
         tasks
           .filter((t) => t.isChallenger)
           .map((t) => ({
-            id: t.trackId,
+            id: t.taskId,
             title: t.taskName,
             streak: t.streaks || 0,
             achieved: 0,
@@ -141,6 +141,7 @@ const Dashboard = () => {
 
   // Delete task from both lists
   const deleteTask = async (id) => {
+    console.log(id)
     if (!id) {
       toast.error("Id not present");
       return;
@@ -186,9 +187,9 @@ const Dashboard = () => {
           <section>
             <h2 className="text-white font-bold text-3xl mb-4">Normal Challenges</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {(loading ? Array(3).fill({}) : normalChallenges).map((challenge, idx) => (
+              {(loading ? Array(3).fill({}) : normalChallenges).map((challenge) => (
                 <div
-                  key={challenge.id || idx}
+                  key={challenge.id}
                   className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
                 >
                   <div className="text-center font-bold text-2xl mb-2">
@@ -222,9 +223,9 @@ const Dashboard = () => {
           <section>
             <h2 className="text-white font-bold text-3xl mb-4">Active Challenges</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {(loading ? Array(3).fill({}) : activeChallenges).map((challenge, idx) => (
+              {(loading ? Array(3).fill({}) : activeChallenges).map((challenge) => (
                 <div
-                  key={challenge.id || idx}
+                  key={challenge.taskId}
                   className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
                 >
                   <div className="text-center font-bold text-2xl mb-2">
