@@ -192,7 +192,7 @@ export const getTaskTracker = async (req, res) => {
         } else {
           if (track.taskDuration >= track.streaks + track.extraDurationByPoints + track.extraDuration) {
             return {
-
+              taskId : track._id , 
               taskDetails: track.taskDetails,
               taskName: track.taskName,
               taskType: track.taskType,
@@ -406,6 +406,7 @@ export const updateTaskTracker = async (req, res) => {
 export const  deleteTaskTracker = async(req, res ) =>{
   try {
     const {id} = req.body ;
+    
     const deletedtaskTracker = await usertaskTracker.findByIdAndDelete(id)
     // let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
 
