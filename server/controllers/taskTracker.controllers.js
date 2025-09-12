@@ -184,7 +184,7 @@ export const getTaskTracker = async (req, res) => {
               `${track.isChallenger? `${track.taskDuration} Lion Challenger`: `${track.taskDuration} Lion Streaker` }`
             
             )
-            console.log ("CHALLENGER", track.isChallenger)
+          
             
 
             
@@ -227,10 +227,10 @@ export const getTaskTracker = async (req, res) => {
     if (usefulTracksToShow.length === 0) {
       return res.status(200).json({ message: "No task To show " });
     }
-    console.log ( usefulTracksToShow)
+
 
     await userDetails.save();
-    console.log ( userDetails , "USER DETAILS ")
+ 
     
 
     return res.status(200).json({
@@ -286,27 +286,7 @@ export const getTaskTracker = async (req, res) => {
 
 export const updateTaskTracker = async (req, res) => {
   try {
-//     const allowedKeys = [
-//       "taskImage",
-//       "id",
-//       "taskDetails",
-//       "isStreaksClicked",
-//       "isExtraDurationClicked",
-//       "isExtraDurationByPoints"
-//     ];
-
-// const bodyKeys = Object.keys(req.body);
-
-// const hasOnlyAllowedKeys = bodyKeys.every(key => allowedKeys.includes(key)) 
-//                            && bodyKeys.length === allowedKeys.length;
-
-// if (!hasOnlyAllowedKeys) {
-//   return res.status(400).json({ error: "Invalid body keys" });
-// }
-
-// now safe to use req.body
-const {
-  taskImage,
+let {
   id,
   taskDetails,
   isStreaksClicked,
@@ -314,6 +294,7 @@ const {
   isExtraDurationByPoints,
 } = req.body;
   console.log (taskDetails, isStreaksClicked , isExtraDurationByPoints , isExtraDurationClicked)
+    taskDetails = sanitizeHtml(taskDetails);
 
     const user = req.user;
     const userDetails = await User.findById(user._id);
@@ -345,10 +326,9 @@ const {
     if (isStreaksClicked){
       let streaks = TaskTracker.streaks
       streaks+=1 
-      console.log ( streaks )
       updatedObj.streaks = streaks 
     }
-    console.log ("UPDATED HU MEIN ",updatedObj)
+  
 
 
     //  ! 
@@ -356,11 +336,7 @@ const {
     let extraDurationByPoints = TaskTracker.extraDurationByPoints;
 
     if (isExtraDurationClicked === "true") {
-      console.log ("MIGHTY RAJU ")
       if (user.difficulty === "easy" || TaskTracker.isExtraDurationCardCompleted) {
-
-     
-
         return res.status(400).json({ error: "Exceeded overLimit of extraDuration" });
       } else {
         extraDuration += 1;
@@ -369,22 +345,12 @@ const {
     }
 
     if (isExtraDurationByPoints === "true") {
-      console.log ( " HELLO WORLD ")
       if (userDetails.totalCoins < 20) {
         return res.status(400).json({ error: "Not enough points" });
       } else {
         extraDurationByPoints += 1;
         updatedObj.extraDurationByPoints = extraDurationByPoints;
-
         userDetails.totalCoins -= 20;
-
-      const now = new Date();
-      const notification = {
-        message: `Your points has  Been deducted `,
-        expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
-        createdAt: now.toISOString(),
-  };
-
         await userDetails.save();
       }
     }
@@ -402,25 +368,31 @@ const {
         updatedObj["isExtraDurationCardCompleted"] = true;
       }
     }
+    if (req.file ){
+      const streamUpload = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "taskTracker" },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        streamifier.createReadStream(fileBuffer).pipe(stream);
+      });
+    };
+
+     const result = await streamUpload(req.file.buffer);
+
+     updatedObj.taskImage = result.secure_url
+     updatedObj.imageId = result.public_id
+    }
 
     const updatedTask = await usertaskTracker.findByIdAndUpdate(
       id,
       { $set: updatedObj },
       { new: true }
     );
-    // let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
-
-      const now = new Date();
-      const notification = {
-        message: `Your Task has Been Updated for Type ${TaskTracker.taskType}`,
-        
-        expiry: now.getTime() + 5 * 24 * 60 * 60 * 1000 , 
-        createdAt: now.toISOString(),
-  };
-
-
-
-
 
     return res
       .status(200)
