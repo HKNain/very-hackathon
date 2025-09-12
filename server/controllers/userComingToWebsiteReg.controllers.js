@@ -30,6 +30,7 @@ export const isRegularlyUserComing = async (req, res, next) => {
 
    
     let regularDaysUserCome = userDetails.regularlyComingToWebsiteDays;
+    console.log ( " I AM REGULARLY COMING  SIRRR " , regularDaysUserCome)
 
     if (!token) {
       generateTokenAndSetCookieForComingToWebsite( req.user._id , res);
@@ -48,7 +49,7 @@ export const isRegularlyUserComing = async (req, res, next) => {
             (1000 * 60 * 60 * 24)
         );
 
-        if (diffDays === 1) {
+        if (diffDays === 1 ) {
           regularDaysUserCome += 1;
           const daysComeAchievemnets = achievementForDaysCome(regularDaysUserCome);
           if (daysComeAchievemnets != null) {
@@ -56,7 +57,7 @@ export const isRegularlyUserComing = async (req, res, next) => {
           }
 
           generateTokenAndSetCookieForComingToWebsite( req.user._id , res); 
-        } else if (diffDays > 1) {
+        } else if (diffDays >1) {
           regularDaysUserCome = 0;
           generateTokenAndSetCookieForComingToWebsite(req.user._id , res); 
         }
