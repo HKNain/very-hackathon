@@ -40,8 +40,16 @@ const Dashboard = () => {
 
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editForm, setEditForm] = useState({
+    taskName: "",
     taskDetails: "",
-    // add more fields here if editable
+    taskDuration: "",
+    taskType: "",
+    isStreaksClicked: false,
+    isExtraDurationClicked: false,
+    isExtraDurationByPoints: false,
+    isChallenger: false,
+    newImageFile: null,
+    imgPreviewUrl: "",
   });
   const [editLoading, setEditLoading] = useState(false);
 
@@ -65,12 +73,15 @@ const Dashboard = () => {
             id: t.taskId,
             title: t.taskName,
             streak: t.streaks || 0,
-            achieved: 0,
-            notAchieved: 0,
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
+            taskType: t.taskType,
             imgSrc: t.taskImage,
+            isStreaksClicked: t.isStreaksClicked || false,
+            isExtraDurationClicked: t.isExtraDurationClicked || false,
+            isExtraDurationByPoints: t.isExtraDurationByPoints || false,
+            isChallenger: t.isChallenger,
           }))
       );
 
@@ -81,12 +92,15 @@ const Dashboard = () => {
             id: t.taskId,
             title: t.taskName,
             streak: t.streaks || 0,
-            achieved: 0,
-            notAchieved: 0,
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
+            taskType: t.taskType,
             imgSrc: t.taskImage,
+            isStreaksClicked: t.isStreaksClicked || false,
+            isExtraDurationClicked: t.isExtraDurationClicked || false,
+            isExtraDurationByPoints: t.isExtraDurationByPoints || false,
+            isChallenger: t.isChallenger,
           }))
       );
     } catch (err) {
@@ -114,8 +128,16 @@ const Dashboard = () => {
   const handleEditClick = (task) => {
     setEditingTaskId(task.id);
     setEditForm({
+      taskName: task.title || "",
       taskDetails: task.taskDetails || "",
-      // prefill other editable fields here if needed
+      taskDuration: task.taskDuration || "",
+      taskType: task.taskType || "",
+      isStreaksClicked: task.isStreaksClicked || false,
+      isExtraDurationClicked: task.isExtraDurationClicked || false,
+      isExtraDurationByPoints: task.isExtraDurationByPoints || false,
+      isChallenger: task.isChallenger || false,
+      newImageFile: null,
+      imgPreviewUrl: task.imgSrc || "",
     });
   };
 
@@ -125,8 +147,24 @@ const Dashboard = () => {
   };
 
   const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm((p) => ({ ...p, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    if (type === "checkbox") {
+      setEditForm((p) => ({ ...p, [name]: checked }));
+    } else {
+      setEditForm((p) => ({ ...p, [name]: value }));
+    }
+  };
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditForm((p) => ({ ...p, newImageFile: file }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditForm((p) => ({ ...p, imgPreviewUrl: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const saveEdit = async () => {
@@ -135,16 +173,32 @@ const Dashboard = () => {
     setEditLoading(true);
 
     try {
-      const payload = {
-        id: editingTaskId,
-        taskDetails: editForm.taskDetails,
-        // add other changed fields here
-      };
+      const formData = new FormData();
+      formData.append("id", editingTaskId);
+      formData.append("taskName", editForm.taskName);
+      formData.append("taskDetails", editForm.taskDetails);
+      formData.append("taskDuration", editForm.taskDuration);
+      formData.append("taskType", editForm.taskType);
+      formData.append("isStreaksClicked", editForm.isStreaksClicked);
+      formData.append(
+        "isExtraDurationClicked",
+        editForm.isExtraDurationClicked
+      );
+      formData.append(
+        "isExtraDurationByPoints",
+        editForm.isExtraDurationByPoints
+      );
+      formData.append("isChallenger", editForm.isChallenger);
 
-      const res = await api.patch("/dashboard/updatetask", payload);
+      if (editForm.newImageFile) {
+        formData.append("taskImage", editForm.newImageFile);
+      }
+
+      const res = await api.patch("/dashboard/updatetask", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       if (res?.data?.success) {
-        // Update the task in activeChallenges and normalChallenges state
         const updatedTask = res.data.task;
 
         setActiveChallenges((prev) =>
@@ -296,14 +350,96 @@ const Dashboard = () => {
                   >
                     {editingTaskId === challenge.id ? (
                       <>
+                        <input
+                          type="text"
+                          name="taskName"
+                          value={editForm.taskName}
+                          onChange={handleEditChange}
+                          placeholder="Task Name"
+                          className="p-2 rounded bg-black/20 text-white w-full"
+                        />
+                        <input
+                          type="text"
+                          name="taskType"
+                          value={editForm.taskType}
+                          onChange={handleEditChange}
+                          placeholder="Task Type"
+                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
+                        />
+                        <input
+                          type="number"
+                          name="taskDuration"
+                          min={1}
+                          value={editForm.taskDuration}
+                          onChange={handleEditChange}
+                          placeholder="Task Duration (days)"
+                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
+                        />
                         <textarea
                           name="taskDetails"
                           value={editForm.taskDetails}
                           onChange={handleEditChange}
-                          className="p-2 rounded bg-black/20 text-white w-full"
+                          placeholder="Task Details"
                           rows={3}
+                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
                         />
-                        <div className="flex gap-4 mt-2">
+                        <div className="flex flex-col mt-2 gap-2">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isStreaksClicked"
+                              checked={editForm.isStreaksClicked}
+                              onChange={handleEditChange}
+                            />
+                            Is Streaks Clicked
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isExtraDurationClicked"
+                              checked={editForm.isExtraDurationClicked}
+                              onChange={handleEditChange}
+                            />
+                            Is Extra Duration Clicked
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isExtraDurationByPoints"
+                              checked={editForm.isExtraDurationByPoints}
+                              onChange={handleEditChange}
+                            />
+                            Is Extra Duration By Points
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isChallenger"
+                              checked={editForm.isChallenger}
+                              onChange={handleEditChange}
+                            />
+                            Is Challenger
+                          </label>
+                        </div>
+                        <div className="mt-3">
+                          <label className="block mb-1">
+                            Update Image (optional)
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleEditImageChange}
+                            className="text-white"
+                          />
+                          {editForm.imgPreviewUrl && (
+                            <img
+                              src={editForm.imgPreviewUrl}
+                              alt="Preview"
+                              className="rounded mt-2 max-h-40 object-contain"
+                            />
+                          )}
+                        </div>
+                        <div className="flex gap-4 mt-4">
                           <button
                             onClick={saveEdit}
                             disabled={editLoading}
@@ -369,14 +505,96 @@ const Dashboard = () => {
                   >
                     {editingTaskId === challenge.id ? (
                       <>
+                        <input
+                          type="text"
+                          name="taskName"
+                          value={editForm.taskName}
+                          onChange={handleEditChange}
+                          placeholder="Task Name"
+                          className="p-2 rounded bg-black/20 text-white w-full"
+                        />
+                        <input
+                          type="text"
+                          name="taskType"
+                          value={editForm.taskType}
+                          onChange={handleEditChange}
+                          placeholder="Task Type"
+                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
+                        />
+                        <input
+                          type="number"
+                          name="taskDuration"
+                          min={1}
+                          value={editForm.taskDuration}
+                          onChange={handleEditChange}
+                          placeholder="Task Duration (days)"
+                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
+                        />
                         <textarea
                           name="taskDetails"
                           value={editForm.taskDetails}
                           onChange={handleEditChange}
-                          className="p-2 rounded bg-black/20 text-white w-full"
+                          placeholder="Task Details"
                           rows={3}
+                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
                         />
-                        <div className="flex gap-4 mt-2">
+                        <div className="flex flex-col mt-2 gap-2">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isStreaksClicked"
+                              checked={editForm.isStreaksClicked}
+                              onChange={handleEditChange}
+                            />
+                            Is Streaks Clicked
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isExtraDurationClicked"
+                              checked={editForm.isExtraDurationClicked}
+                              onChange={handleEditChange}
+                            />
+                            Is Extra Duration Clicked
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isExtraDurationByPoints"
+                              checked={editForm.isExtraDurationByPoints}
+                              onChange={handleEditChange}
+                            />
+                            Is Extra Duration By Points
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              name="isChallenger"
+                              checked={editForm.isChallenger}
+                              onChange={handleEditChange}
+                            />
+                            Is Challenger
+                          </label>
+                        </div>
+                        <div className="mt-3">
+                          <label className="block mb-1">
+                            Update Image (optional)
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleEditImageChange}
+                            className="text-white"
+                          />
+                          {editForm.imgPreviewUrl && (
+                            <img
+                              src={editForm.imgPreviewUrl}
+                              alt="Preview"
+                              className="rounded mt-2 max-h-40 object-contain"
+                            />
+                          )}
+                        </div>
+                        <div className="flex gap-4 mt-4">
                           <button
                             onClick={saveEdit}
                             disabled={editLoading}
