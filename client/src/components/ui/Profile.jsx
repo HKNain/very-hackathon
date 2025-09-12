@@ -30,8 +30,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const [achievements, setAchievements] = useState([]);
   const [taskHistory, setTaskHistory] = useState([]);
-  const [totalCoins, setTotalCoins] = useState(0);
-  const [streak, setStreak] = useState(null);
+  const [streak, setStreak] = useState(0);
+  const [userPoints, setUserPoints] = useState(0);
 
   const randomPositions = floatingPNGs.map(() => ({
     ...getRandomPosition(),
@@ -48,11 +48,16 @@ const Profile = () => {
           achRes?.data?.Achievements ||
           achRes?.data?.achievements ||
           [];
-        const userHistory = achRes?.data?.userHistoryTask || achRes?.data?.taskHistory || [];
+        const userHistory =
+          achRes?.data?.userHistoryTask || achRes?.data?.taskHistory || [];
+
         setAchievements(Array.isArray(userAchievements) ? userAchievements : []);
         setTaskHistory(Array.isArray(userHistory) ? userHistory : []);
-        const coins = achRes?.data?.totalCoins || achRes?.data?.user?.totalCoins || 0;
-        setTotalCoins(coins);
+
+        const pointsRes = await api.get("/dashboard/totalpoints");
+        if (pointsRes.status === 200) {
+          setUserPoints(pointsRes.data.userPoints ?? 0);
+        }
       } catch (err) {
         console.error("Profile fetch error", err);
       }
@@ -85,7 +90,7 @@ const Profile = () => {
   useEffect(() => {
     api
       .get("/dashboard/streak", { withCredentials: true })
-      .then((res) => setStreak(res.data.regularlyComingToWebsiteDays || 0))
+      .then((res) => setStreak(res.data.regularlyComingToWebsiteDays))
       .catch(() => setStreak(0));
   }, []);
 
@@ -125,9 +130,13 @@ const Profile = () => {
                 alt="Profile"
               />
             </div>
-            <div className="text-white text-xl font-bold text-center mb-2">username</div>
-            <div className="text-white text-base text-center mb-6">email@example.com</div>
-            <div className="text-white">Coins: {totalCoins}</div>
+            <div className="text-white text-xl font-bold text-center mb-2">
+              username
+            </div>
+            <div className="text-white text-base text-center mb-6">
+              email@example.com
+            </div>
+            <div className="text-white">Points: {userPoints}</div>
             <div className="text-white mt-1">Streak: {streak}</div>
           </div>
 
@@ -158,7 +167,9 @@ const Profile = () => {
                 className="bg-black/60 border border-white/20 rounded-xl p-4 flex flex-col justify-between shadow-lg"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-white text-xl font-semibold">{card.title}</span>
+                  <span className="text-white text-xl font-semibold">
+                    {card.title}
+                  </span>
                   <button
                     onClick={() => navigate(card.route)}
                     className="flex items-center justify-center"
@@ -179,7 +190,11 @@ const Profile = () => {
               endDate={new Date(new Date().getFullYear(), 11, 31)}
               values={heatmapData}
               classForValue={(value) =>
-                !value ? "color-empty" : value.count === 1 ? "color-visited" : "color-empty"
+                !value
+                  ? "color-empty"
+                  : value.count === 1
+                  ? "color-visited"
+                  : "color-empty"
               }
             />
             <style>{`
