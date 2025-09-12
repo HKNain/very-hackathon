@@ -58,7 +58,6 @@ export const createTaskTracker = async  (req, res) => {
     
 
 
-
     const taskCreated = await usertaskTracker.create({
       userId : user._id, 
       taskName,
@@ -148,12 +147,11 @@ export const getTaskTracker = async (req, res) => {
 
     
 
-    const usefulTracksToShow = await Promise.all (userTracks.map(async (track) => {
+    const usefulTracksToShow  = await Promise.all (userTracks.map(async (track) => {
         const createdAtDay = track.createdAt
 
         const totalDuration =  trackDays - createdAtDay;
-        console.log ("Toatsl ",totalDuration)
-        console.log ("",track.taskDuration)
+       
 
         if (totalDuration >= track.taskDuration) {
           if (track.taskDuration <= track.streaks + track.extraDurationByPoints + track.extraDuration) {
@@ -173,6 +171,7 @@ export const getTaskTracker = async (req, res) => {
               `${track.isChallenger? `${track.taskDuration} Lion Challenger`: `${track.taskDuration} Lion Streaker` }`
             
             )
+            console.log ("CHALLENGER", track.isChallenger)
             
 
             
@@ -191,24 +190,22 @@ export const getTaskTracker = async (req, res) => {
             await usertaskTracker.findByIdAndDelete(track._id);
           }
         } else {
-          console.log ( "TTT",track.streaks + track.extraDurationByPoints + track.extraDuration )
-          console.log ( "EDHYGDF", track.taskDuration )
           if (track.taskDuration >= track.streaks + track.extraDurationByPoints + track.extraDuration) {
-            console.log ( "Hello world")
             return {
+
               taskDetails: track.taskDetails,
               taskName: track.taskName,
               taskType: track.taskType,
               taskDuration: track.taskDuration,
               difficulty: track.difficulty,
               editedAt: track.editedAt,
-              trackId : track.id 
+              isChallenger : track.isChallenger
+            
             };
           } else {
             await usertaskTracker.findByIdAndDelete(track._id);
           }
         }
-        await userTracks.save()
       })
    )
   
@@ -219,6 +216,7 @@ export const getTaskTracker = async (req, res) => {
     console.log ( usefulTracksToShow)
 
     await userDetails.save();
+    console.log ( userDetails , "USER DETAILS ")
     
 
     return res.status(200).json({
