@@ -153,7 +153,7 @@ export const getTaskTracker = async (req, res) => {
         const totalDuration =  trackDays - createdAtDay;
        
 
-        if (totalDuration >= track.taskDuration) {
+        if (totalDuration >= track.taskDuration || track.taskDuration <= track.streaks + track.extraDurationByPoints + track.extraDuration) {
           if (track.taskDuration <= track.streaks + track.extraDurationByPoints + track.extraDuration) {
             userDetails.taskHistory.push({
               taskDetails: track.taskDetails,
@@ -272,14 +272,34 @@ export const getTaskTracker = async (req, res) => {
 
 export const updateTaskTracker = async (req, res) => {
   try {
-    const {
-      taskImage,
-      id,
-      taskDetails,
-      isStreaksClicked,
-      isExtraDurationClicked,
-      isExtraDurationByPoints,
-    } = req.body;
+//     const allowedKeys = [
+//       "taskImage",
+//       "id",
+//       "taskDetails",
+//       "isStreaksClicked",
+//       "isExtraDurationClicked",
+//       "isExtraDurationByPoints"
+//     ];
+
+// const bodyKeys = Object.keys(req.body);
+
+// const hasOnlyAllowedKeys = bodyKeys.every(key => allowedKeys.includes(key)) 
+//                            && bodyKeys.length === allowedKeys.length;
+
+// if (!hasOnlyAllowedKeys) {
+//   return res.status(400).json({ error: "Invalid body keys" });
+// }
+
+// now safe to use req.body
+const {
+  taskImage,
+  id,
+  taskDetails,
+  isStreaksClicked,
+  isExtraDurationClicked,
+  isExtraDurationByPoints,
+} = req.body;
+
 
     const user = req.user;
     const userDetails = await User.findById(user._id);
@@ -293,6 +313,7 @@ export const updateTaskTracker = async (req, res) => {
     if (!TaskTracker) {
       return res.status(404).json({ error: "Task not found" });
     }
+    
 
     const updatedObj = {};
 
@@ -315,6 +336,8 @@ export const updateTaskTracker = async (req, res) => {
     }
     console.log (updatedObj)
 
+
+    //  ! 
     let extraDuration = TaskTracker.extraDuration;
     let extraDurationByPoints = TaskTracker.extraDurationByPoints;
 
@@ -389,6 +412,10 @@ export const updateTaskTracker = async (req, res) => {
         createdAt: now.toISOString(),
   };
     // localStorage.setItem("notifications", JSON.stringify(notifications));
+
+
+
+
 
     return res
       .status(200)
