@@ -135,7 +135,6 @@ const Dashboard = () => {
       isStreaksClicked: task.isStreaksClicked || false,
       isExtraDurationClicked: task.isExtraDurationClicked || false,
       isExtraDurationByPoints: task.isExtraDurationByPoints || false,
-      isChallenger: task.isChallenger || false,
       newImageFile: null,
       imgPreviewUrl: task.imgSrc || "",
     });
@@ -188,7 +187,6 @@ const Dashboard = () => {
         "isExtraDurationByPoints",
         editForm.isExtraDurationByPoints
       );
-      formData.append("isChallenger", editForm.isChallenger);
 
       if (editForm.newImageFile) {
         formData.append("taskImage", editForm.newImageFile);
@@ -383,43 +381,65 @@ const Dashboard = () => {
                           rows={3}
                           className="p-2 rounded bg-black/20 text-white w-full mt-2"
                         />
+                        Streak++
                         <div className="flex flex-col mt-2 gap-2">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              name="isStreaksClicked"
-                              checked={editForm.isStreaksClicked}
-                              onChange={handleEditChange}
-                            />
-                            Is Streaks Clicked
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              name="isExtraDurationClicked"
-                              checked={editForm.isExtraDurationClicked}
-                              onChange={handleEditChange}
-                            />
-                            Is Extra Duration Clicked
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              name="isExtraDurationByPoints"
-                              checked={editForm.isExtraDurationByPoints}
-                              onChange={handleEditChange}
-                            />
-                            Is Extra Duration By Points
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              name="isChallenger"
-                              checked={editForm.isChallenger}
-                              onChange={handleEditChange}
-                            />
-                            Is Challenger
-                          </label>
+                          <button
+                            type="button"
+                            name="isStreaksClicked"
+                            onClick={() =>
+                              setEditForm((p) => ({
+                                ...p,
+                                isStreaksClicked: !p.isStreaksClicked,
+                              }))
+                            }
+                            className={`px-3 py-1 rounded font-semibold text-white transition-colors ${
+                              editForm.isStreaksClicked
+                                ? "bg-green-600"
+                                : "bg-red-600"
+                            }`}
+                          >
+                            {editForm.isStreaksClicked ? "True" : "False"}
+                          </button>
+                          Streak Freeze
+                          <button
+                            type="button"
+                            name="isExtraDurationClicked"
+                            onClick={() =>
+                              setEditForm((p) => ({
+                                ...p,
+                                isExtraDurationClicked:
+                                  !p.isExtraDurationClicked,
+                              }))
+                            }
+                            className={`px-3 py-1 rounded font-semibold text-white transition-colors ${
+                              editForm.isExtraDurationClicked
+                                ? "bg-green-600"
+                                : "bg-red-600"
+                            }`}
+                          >
+                            {editForm.isExtraDurationClicked ? "True" : "False"}
+                          </button>
+                          Streak Freeze(By points)
+                          <button
+                            type="button"
+                            name="isExtraDurationByPoints"
+                            onClick={() =>
+                              setEditForm((p) => ({
+                                ...p,
+                                isExtraDurationByPoints:
+                                  !p.isExtraDurationByPoints,
+                              }))
+                            }
+                            className={`px-3 py-1 rounded font-semibold text-white transition-colors ${
+                              editForm.isExtraDurationByPoints
+                                ? "bg-green-600"
+                                : "bg-red-600"
+                            }`}
+                          >
+                            {editForm.isExtraDurationByPoints
+                              ? "True"
+                              : "False"}
+                          </button>
                         </div>
                         <div className="mt-3">
                           <label className="block mb-1">
