@@ -9,6 +9,7 @@ import "../CalendarCustom.css";
 import toast from "react-hot-toast";
 
 const floatingPNGs = [berry1, berry2, berry1, berry2, berry1, berry2];
+
 const getRandomPosition = () => {
   let top, left;
   do {
@@ -28,13 +29,14 @@ const Dashboard = () => {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({
     taskName: "",
-    taskImage: "",
     taskDetails: "",
     taskDuration: "",
     taskType: "",
     isChallenger: false,
   });
   const [formError, setFormError] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
 
   const randomPositions = floatingPNGs.map(() => ({
     ...getRandomPosition(),
@@ -61,7 +63,7 @@ const Dashboard = () => {
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
-            imgSrc: t.taskImage
+            imgSrc: t.taskImage,
           }))
       );
 
@@ -77,7 +79,7 @@ const Dashboard = () => {
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
-            imgSrc: t.taskImage
+            imgSrc: t.taskImage,
           }))
       );
     } catch (err) {
@@ -93,7 +95,7 @@ const Dashboard = () => {
 
   const validateForm = () => {
     if (!form.taskName.trim()) return "Task name is required";
-    if (!form.taskImage.trim()) return "Task image URL is required";
+    if (!imageFile) return "Task image file is required";
     if (!form.taskDetails.trim()) return "Task details are required";
     if (!form.taskType.trim()) return "Task type is required";
     const durationNum = Number(form.taskDuration);
@@ -101,8 +103,25 @@ const Dashboard = () => {
     return null;
   };
 
+  // Handle file input change and preview
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageFile(null);
+      setImagePreviewUrl("");
+    }
+  };
+
+  // Create task form submit handler using FormData for file upload
   const handleCreateSubmit = async (e) => {
-    e?.preventDefault();
+    e.preventDefault();
     const err = validateForm();
     if (err) {
       setFormError(err);
@@ -111,25 +130,33 @@ const Dashboard = () => {
     setFormError("");
     setCreating(true);
     try {
-      const payload = {
-        taskName: form.taskName,
-        taskImage: form.taskImage,
-        taskDetails: form.taskDetails,
-        taskDuration: Number(form.taskDuration),
-        taskType: form.taskType,
-        isChallenger: Boolean(form.isChallenger),
-      };
-      const res = await api.post("/dashboard/createtask", payload);
+      const formData = new FormData();
+      formData.append("taskName", form.taskName);
+      formData.append("taskDetails", form.taskDetails);
+      formData.append("taskDuration", form.taskDuration);
+      formData.append("taskType", form.taskType);
+      formData.append("isChallenger", form.isChallenger);
+      formData.append("taskImage", imageFile);
+
+      const res = await api.post("/dashboard/createtask", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       setShowCreateModal(false);
       setForm({
         taskName: "",
-        taskImage: "",
         taskDetails: "",
         taskDuration: "",
         taskType: "",
         isChallenger: false,
       });
+      setImageFile(null);
+      setImagePreviewUrl("");
+
       await fetchData();
+
       if (res?.data?.success) {
         toast.success("Task created Successfully");
       }
@@ -141,18 +168,14 @@ const Dashboard = () => {
     }
   };
 
-  // Delete task from both lists
+  // Delete task function
   const deleteTask = async (id) => {
-    console.log(id)
     if (!id) {
       toast.error("Id not present");
       return;
     }
     try {
-      const response = await api.delete("/dashboard/deletetask", {
-        data: { id },
-      });
-
+      const response = await api.delete("/dashboard/deletetask", { data: { id } });
       if (response.status === 200) {
         setActiveChallenges((prev) => prev.filter((task) => task.id !== id));
         setNormalChallenges((prev) => prev.filter((task) => task.id !== id));
@@ -184,7 +207,7 @@ const Dashboard = () => {
         className="min-h-screen w-full bg-gradient-to-br from-[#0a0a0f] via-[#120018] to-[#000000] relative overflow-hidden pt-32 px-6 gap-8 flex flex-row"
         style={{ fontFamily: "Poppins, sans-serif" }}
       >
-        {/* Left: Challenges section with headings */}
+        {/* Left: Challenges */}
         <div className="flex-1 flex flex-col gap-8 overflow-y-auto max-h-[calc(100vh-8rem)] pr-4">
           <section>
             <h2 className="text-white font-bold text-3xl mb-4">Normal Challenges</h2>
@@ -194,15 +217,15 @@ const Dashboard = () => {
                   key={challenge.id}
                   className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
                 >
-                  <div className="text-center font-bold text-2xl mb-2">
-                    {challenge.title || "Untitled"}
-                  </div>
+                  <div className="text-center font-bold text-2xl mb-2">{challenge.title || "Untitled"}</div>
                   <div className="flex flex-row justify-between gap-5">
-                    <img src={challenge.imgSrc} alt="" />
+                    <img src={challenge.imgSrc} alt={`img-${challenge.title}`} />
                   </div>
                   <StreakBar streak={challenge.streak} />
                   <div className="flex flex-row justify-between mt-2 gap-4">
-                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">Edit</button>
+                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">
+                      Edit
+                    </button>
                     <button
                       className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
                       onClick={() => deleteTask(challenge.id)}
@@ -220,18 +243,18 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {(loading ? Array(3).fill({}) : activeChallenges).map((challenge) => (
                 <div
-                  key={challenge.taskId}
+                  key={challenge.id}
                   className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
                 >
-                  <div className="text-center font-bold text-2xl mb-2">
-                    {challenge.title || "Untitled"}
-                  </div>
+                  <div className="text-center font-bold text-2xl mb-2">{challenge.title || "Untitled"}</div>
                   <div className="flex flex-row justify-between gap-5">
-                    <img src={challenge.imgSrc} alt="" />
+                    <img src={challenge.imgSrc} alt={`img-${challenge.title}`} />
                   </div>
                   <StreakBar streak={challenge.streak} />
                   <div className="flex flex-row justify-between mt-2 gap-4">
-                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">Edit</button>
+                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">
+                      Edit
+                    </button>
                     <button
                       className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
                       onClick={() => deleteTask(challenge.id)}
@@ -245,7 +268,7 @@ const Dashboard = () => {
           </section>
         </div>
 
-        {/* Right: Create, Calendar, Trending */}
+        {/* Right Sidebar */}
         <div className="w-[360px] flex flex-col gap-6">
           <button
             className="rounded-lg px-4 py-2 bg-pink-500 text-white font-semibold shadow hover:bg-pink-600"
@@ -305,11 +328,18 @@ const Dashboard = () => {
                 onChange={(e) => setForm((p) => ({ ...p, taskName: e.target.value }))}
               />
               <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
                 className="p-3 rounded bg-black/40 text-white"
-                placeholder="Task Image URL"
-                value={form.taskImage}
-                onChange={(e) => setForm((p) => ({ ...p, taskImage: e.target.value }))}
               />
+              {imagePreviewUrl && (
+                <img
+                  src={imagePreviewUrl}
+                  alt="Preview"
+                  className="rounded mt-2 max-h-40 object-contain"
+                />
+              )}
               <input
                 className="p-3 rounded bg-black/40 text-white"
                 placeholder="Task Type (e.g. gym)"
@@ -348,7 +378,11 @@ const Dashboard = () => {
               >
                 Cancel
               </button>
-              <button type="submit" disabled={creating} className="px-4 py-2 rounded bg-pink-500 text-white">
+              <button
+                type="submit"
+                disabled={creating}
+                className="px-4 py-2 rounded bg-pink-500 text-white"
+              >
                 {creating ? "Creating..." : "Create Task"}
               </button>
             </div>
