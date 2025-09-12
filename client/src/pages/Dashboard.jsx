@@ -61,6 +61,7 @@ const Dashboard = () => {
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
+            imgSrc: t.taskImage
           }))
       );
 
@@ -76,6 +77,7 @@ const Dashboard = () => {
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
+            imgSrc: t.taskImage
           }))
       );
     } catch (err) {
@@ -196,14 +198,7 @@ const Dashboard = () => {
                     {challenge.title || "Untitled"}
                   </div>
                   <div className="flex flex-row justify-between gap-5">
-                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                      <div className="font-semibold">Achieved</div>
-                      <div>{challenge.achieved ?? 0}</div>
-                    </div>
-                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                      <div className="font-semibold">Not Achieved</div>
-                      <div>{challenge.notAchieved ?? 0}</div>
-                    </div>
+                    <img src={challenge.imgSrc} alt="" />
                   </div>
                   <StreakBar streak={challenge.streak} />
                   <div className="flex flex-row justify-between mt-2 gap-4">
@@ -232,14 +227,7 @@ const Dashboard = () => {
                     {challenge.title || "Untitled"}
                   </div>
                   <div className="flex flex-row justify-between gap-5">
-                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                      <div className="font-semibold">Achieved</div>
-                      <div>{challenge.achieved ?? 0}</div>
-                    </div>
-                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                      <div className="font-semibold">Not Achieved</div>
-                      <div>{challenge.notAchieved ?? 0}</div>
-                    </div>
+                    <img src={challenge.imgSrc} alt="" />
                   </div>
                   <StreakBar streak={challenge.streak} />
                   <div className="flex flex-row justify-between mt-2 gap-4">
