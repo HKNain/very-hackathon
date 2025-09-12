@@ -5,6 +5,7 @@ import { isRegularlyUserComing, showRegularComingStreak } from "../controllers/u
 import { getAchievements } from "../controllers/userAchievements.controllers.js";
 import { getUserProfile } from "../controllers/auth.controllers.js";
 import {upload} from "../utils/multer.js";
+import { getUserPoints } from "../controllers/userPoints.controllers.js";
 // import { getNotifications } from "../controllers/userNotification.controllers.js";
 
 const router = express.Router()
@@ -21,8 +22,9 @@ router.patch('/updatetask',protectRoute,upload.single("taskImage"),updateTaskTra
 router.get ('/achievements',protectRoute , getAchievements )
 router.get('/streak', protectRoute , showRegularComingStreak)
 router.get('/',protectRoute)
-// router.get('/points',protectRoute,getUserPoints )
 router.get('/profile',protectRoute,getUserProfile)
+router.get('/totalpoints', protectRoute , getUserPoints  )
+
 
 
 // router.get('/notification',protectRoute , getNotifications )
