@@ -130,7 +130,6 @@ const Dashboard = () => {
     setEditForm({
       taskName: task.title || "",
       taskDetails: task.taskDetails || "",
-      taskDuration: task.taskDuration || "",
       taskType: task.taskType || "",
       isStreaksClicked: task.isStreaksClicked || false,
       isExtraDurationClicked: task.isExtraDurationClicked || false,
@@ -176,7 +175,6 @@ const Dashboard = () => {
       formData.append("id", editingTaskId);
       formData.append("taskName", editForm.taskName);
       formData.append("taskDetails", editForm.taskDetails);
-      formData.append("taskDuration", editForm.taskDuration);
       formData.append("taskType", editForm.taskType);
       formData.append("isStreaksClicked", editForm.isStreaksClicked);
       formData.append(
@@ -364,15 +362,6 @@ const Dashboard = () => {
                           placeholder="Task Type"
                           className="p-2 rounded bg-black/20 text-white w-full mt-2"
                         />
-                        <input
-                          type="number"
-                          name="taskDuration"
-                          min={1}
-                          value={editForm.taskDuration}
-                          onChange={handleEditChange}
-                          placeholder="Task Duration (days)"
-                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
-                        />
                         <textarea
                           name="taskDetails"
                           value={editForm.taskDetails}
@@ -539,15 +528,6 @@ const Dashboard = () => {
                           value={editForm.taskType}
                           onChange={handleEditChange}
                           placeholder="Task Type"
-                          className="p-2 rounded bg-black/20 text-white w-full mt-2"
-                        />
-                        <input
-                          type="number"
-                          name="taskDuration"
-                          min={1}
-                          value={editForm.taskDuration}
-                          onChange={handleEditChange}
-                          placeholder="Task Duration (days)"
                           className="p-2 rounded bg-black/20 text-white w-full mt-2"
                         />
                         <textarea
