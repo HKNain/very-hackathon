@@ -2,14 +2,14 @@ import usertaskTracker from "../models/usertaskTracker.models.js";
 import User from "../models/user.models.js";
 import cloudinary from "../utils/Cloudinary.js";
 import streamifier from "streamifier";
-
+import sanitizeHtml from "sanitize-html"
 
 export const createTaskTracker = async  (req, res) => {
   try {
 
     console.log (cloudinary.config)
     const user = req.user;
-    const {
+    let {
       taskName,
       taskDetails,
       taskDuration,
@@ -23,8 +23,14 @@ export const createTaskTracker = async  (req, res) => {
       !taskDuration ||
       !taskType
     ) {
-      return res.status(400).json("Please enter correct data");
+      return res.status(400).json("Please enter correct data to craete task ");
     }
+
+    taskName = sanitizeHtml(taskName);
+    taskDetails = sanitizeHtml(taskDetails);
+    taskType = sanitizeHtml(taskType);
+    isChallenger = sanitizeHtml(isChallenger);
+ 
     let difficulty = "";
     if (taskDuration <7) {
       return res.status(400).json({error : "Duration cant be less than 7 "})
@@ -307,7 +313,7 @@ const {
   isExtraDurationClicked,
   isExtraDurationByPoints,
 } = req.body;
-
+  console.log (taskDetails, isStreaksClicked , isExtraDurationByPoints , isExtraDurationClicked)
 
     const user = req.user;
     const userDetails = await User.findById(user._id);
@@ -342,14 +348,15 @@ const {
       console.log ( streaks )
       updatedObj.streaks = streaks 
     }
-    console.log (updatedObj)
+    console.log ("UPDATED HU MEIN ",updatedObj)
 
 
     //  ! 
     let extraDuration = TaskTracker.extraDuration;
     let extraDurationByPoints = TaskTracker.extraDurationByPoints;
 
-    if (isExtraDurationClicked) {
+    if (isExtraDurationClicked === "true") {
+      console.log ("MIGHTY RAJU ")
       if (user.difficulty === "easy" || TaskTracker.isExtraDurationCardCompleted) {
 
      
@@ -361,7 +368,8 @@ const {
       }
     }
 
-    if (isExtraDurationByPoints) {
+    if (isExtraDurationByPoints === "true") {
+      console.log ( " HELLO WORLD ")
       if (userDetails.totalCoins < 20) {
         return res.status(400).json({ error: "Not enough points" });
       } else {
