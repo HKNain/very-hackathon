@@ -13,9 +13,9 @@ export const getAchievements =async (req,res) =>{
         })
         console.log (userAchievements, userHistoryTask)
 
-        return res.status(200).json({success: " getAchievemts "},
-            userHistoryTask,
-            userAchievements
+        return res.status(200).json({success: " getAchievemts ",userHistoryTask,
+            userAchievements}
+            
         )
 
         
