@@ -55,6 +55,16 @@ const Profile = () => {
     duration: Math.random() * 6 + 6, // 6s – 12s
   }));
 
+  // function for getting profile info in frontend
+  // const profileInfo = async () => {
+  //   try {
+  //     const profile = api.get("/api/auth/");
+
+  //   } catch (error) {
+  //     console.log(error.message)
+  //   }
+  // }
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {

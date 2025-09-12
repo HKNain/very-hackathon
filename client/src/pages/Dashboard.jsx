@@ -6,7 +6,7 @@ import { api } from "../utils/axios.js";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../CalendarCustom.css";
-import toast from "react-hot-toast"
+import toast from "react-hot-toast";
 
 const floatingPNGs = [berry1, berry2, berry1, berry2, berry1, berry2];
 const getRandomPosition = () => {
@@ -42,42 +42,42 @@ const Dashboard = () => {
     duration: Math.random() * 6 + 6,
   }));
 
-  // Fetch data (tasks, achievements, etc.)
+  // Fetch tasks and set states
   const fetchData = async () => {
     try {
       setLoading(true);
-      // get tasks (active challenges)
       const tasksRes = await api.get("/dashboard/gettasks");
       const tasks = tasksRes?.data?.tasks || [];
 
       setActiveChallenges(
-        tasks.filter((t) => !t.isChallenger).map((t) => ({
-          id: t.trackId,
-          title: t.taskName,
-          streak: t.streaks || 0,
-          achieved: 0,
-          notAchieved: 0,
-          taskDetails: t.taskDetails,
-          taskDuration: t.taskDuration,
-          difficulty: t.difficulty,
-          
-        }))
+        tasks
+          .filter((t) => !t.isChallenger)
+          .map((t) => ({
+            id: t.trackId,
+            title: t.taskName,
+            streak: t.streaks || 0,
+            achieved: 0,
+            notAchieved: 0,
+            taskDetails: t.taskDetails,
+            taskDuration: t.taskDuration,
+            difficulty: t.difficulty,
+          }))
       );
 
       setNormalChallenges(
-        tasks.filter((t) => t.isChallenger).map((t) => ({
-          id: t.trackId,
-          title: t.taskName,
-          streak: t.streaks || 0,
-          achieved: 0,
-          notAchieved: 0,
-          taskDetails: t.taskDetails,
-          taskDuration: t.taskDuration,
-          difficulty: t.difficulty,
-          
-        }))
+        tasks
+          .filter((t) => t.isChallenger)
+          .map((t) => ({
+            id: t.trackId,
+            title: t.taskName,
+            streak: t.streaks || 0,
+            achieved: 0,
+            notAchieved: 0,
+            taskDetails: t.taskDetails,
+            taskDuration: t.taskDuration,
+            difficulty: t.difficulty,
+          }))
       );
-
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
@@ -118,7 +118,6 @@ const Dashboard = () => {
         isChallenger: Boolean(form.isChallenger),
       };
       const res = await api.post("/dashboard/createtask", payload);
-      // on success refresh tasks and close modal
       setShowCreateModal(false);
       setForm({
         taskName: "",
@@ -130,7 +129,7 @@ const Dashboard = () => {
       });
       await fetchData();
       if (res?.data?.success) {
-        toast.success("Task created Successfully")
+        toast.success("Task created Successfully");
       }
     } catch (error) {
       console.error("Create task error:", error);
@@ -140,22 +139,23 @@ const Dashboard = () => {
     }
   };
 
-  // Delete task function
+  // Delete task from both lists
   const deleteTask = async (id) => {
     if (!id) {
-      toast.error("Id not present")
+      toast.error("Id not present");
       return;
     }
     try {
       const response = await api.delete("/dashboard/deletetask", {
-        data: { id }, // sending id in request body as API expects
+        data: { id },
       });
 
       if (response.status === 200) {
         setActiveChallenges((prev) => prev.filter((task) => task.id !== id));
-        toast.success("Task deleted Successfully")
+        setNormalChallenges((prev) => prev.filter((task) => task.id !== id));
+        toast.success("Task deleted Successfully");
       } else {
-        toast.error("Failed to delete Task")
+        toast.error("Failed to delete Task");
       }
     } catch (err) {
       console.error("Error deleting task:", err);
@@ -168,7 +168,9 @@ const Dashboard = () => {
         className="h-full bg-gradient-to-r from-pink-400 to-blue-400 rounded"
         style={{ width: `${Math.min((streak || 0) * 8, 100)}%` }}
       />
-      <span className="absolute left-2 top-0 text-xs text-white font-semibold">{streak ?? 0} day streak</span>
+      <span className="absolute left-2 top-0 text-xs text-white font-semibold">
+        {streak ?? 0} day streak
+      </span>
     </div>
   );
 
@@ -176,19 +178,103 @@ const Dashboard = () => {
     <>
       <NavbarDashboard />
       <div
-        className="min-h-screen w-full bg-gradient-to-br from-[#0a0a0f] via-[#120018] to-[#000000] relative overflow-hidden pt-32 px-6 gap-8 flex flex-col"
+        className="min-h-screen w-full bg-gradient-to-br from-[#0a0a0f] via-[#120018] to-[#000000] relative overflow-hidden pt-32 px-6 gap-8 flex flex-row"
         style={{ fontFamily: "Poppins, sans-serif" }}
       >
-        {/* top bar with CREATE button */}
-        <div className="w-full flex justify-end">
+        {/* Left: Challenges section with headings */}
+        <div className="flex-1 flex flex-col gap-8 overflow-y-auto max-h-[calc(100vh-8rem)] pr-4">
+          <section>
+            <h2 className="text-white font-bold text-3xl mb-4">Normal Challenges</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {(loading ? Array(3).fill({}) : normalChallenges).map((challenge, idx) => (
+                <div
+                  key={challenge.id || idx}
+                  className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
+                >
+                  <div className="text-center font-bold text-2xl mb-2">
+                    {challenge.title || "Untitled"}
+                  </div>
+                  <div className="flex flex-row justify-between gap-5">
+                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
+                      <div className="font-semibold">Achieved</div>
+                      <div>{challenge.achieved ?? 0}</div>
+                    </div>
+                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
+                      <div className="font-semibold">Not Achieved</div>
+                      <div>{challenge.notAchieved ?? 0}</div>
+                    </div>
+                  </div>
+                  <StreakBar streak={challenge.streak} />
+                  <div className="flex flex-row justify-between mt-2 gap-4">
+                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">Edit</button>
+                    <button
+                      className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
+                      onClick={() => deleteTask(challenge.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-white font-bold text-3xl mb-4">Active Challenges</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {(loading ? Array(3).fill({}) : activeChallenges).map((challenge, idx) => (
+                <div
+                  key={challenge.id || idx}
+                  className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
+                >
+                  <div className="text-center font-bold text-2xl mb-2">
+                    {challenge.title || "Untitled"}
+                  </div>
+                  <div className="flex flex-row justify-between gap-5">
+                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
+                      <div className="font-semibold">Achieved</div>
+                      <div>{challenge.achieved ?? 0}</div>
+                    </div>
+                    <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
+                      <div className="font-semibold">Not Achieved</div>
+                      <div>{challenge.notAchieved ?? 0}</div>
+                    </div>
+                  </div>
+                  <StreakBar streak={challenge.streak} />
+                  <div className="flex flex-row justify-between mt-2 gap-4">
+                    <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">Edit</button>
+                    <button
+                      className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
+                      onClick={() => deleteTask(challenge.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* Right: Create, Calendar, Trending */}
+        <div className="w-[360px] flex flex-col gap-6">
           <button
-            className="rounded-lg px-4 py-2 mb-2 bg-pink-500 text-white font-semibold shadow hover:bg-pink-600"
+            className="rounded-lg px-4 py-2 bg-pink-500 text-white font-semibold shadow hover:bg-pink-600"
             onClick={() => setShowCreateModal(true)}
           >
             CREATE
           </button>
+
+          <div className="bg-black/40 border border-white/20 rounded-xl h-[280px] flex flex-col items-center justify-center shadow-lg backdrop-blur-md text-white">
+            <Calendar />
+          </div>
+
+          <div className="bg-black/40 border border-white/20 rounded-xl h-[160px] flex items-center justify-center shadow-lg backdrop-blur-md text-white font-semibold text-xl">
+            Trending (Upcoming)
+          </div>
         </div>
 
+        {/* Floating PNGs */}
         {floatingPNGs.map((png, i) => (
           <img
             key={i}
@@ -205,69 +291,15 @@ const Dashboard = () => {
             }}
           />
         ))}
-
-        <div className="relative z-10 w-full flex flex-row gap-6 mb-2">
-          <div className="flex-1 flex overflow-x-auto gap-4 pb-2">
-            {(loading ? Array(3).fill({}) : normalChallenges).map((challenge) => (
-              <div
-                key={challenge.id}
-                className="min-w-[180px] h-[80px] bg-black/40 border border-white/20 rounded-xl p-3 flex flex-col justify-between shadow-lg backdrop-blur-md cursor-pointer text-white hover:scale-105 transition-transform"
-              >
-                <div className="font-bold">{challenge.title || challenge.taskName || "No Title"}</div>
-                <div className="text-xs">{challenge.desc || challenge.taskDetails || challenge.description || ""}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex-shrink-0 w-[340px] bg-black/40 border border-white/20 rounded-xl h-[200px] flex flex-col items-center justify-center shadow-lg backdrop-blur-md text-white">
-            <Calendar />
-          </div>
-        </div>
-
-        <div className="relative z-10 w-full flex flex-row gap-6">
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {(loading ? Array(6).fill({}) : activeChallenges).map((challenge) => (
-              <div
-                key={challenge.id}
-                className="bg-black/60 border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col gap-5 backdrop-blur-lg transition-all hover:scale-105 duration-200 text-white"
-              >
-                <div className="text-center font-bold text-2xl mb-2">{challenge.title || "Untitled"}</div>
-                <div className="flex flex-row justify-between gap-5">
-                  <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                    <div className="font-semibold">Achieved</div>
-                    <div>{challenge.achieved ?? 0}</div>
-                  </div>
-                  <div className="flex-1 bg-black/40 rounded-xl p-3 text-center border border-white/20 shadow">
-                    <div className="font-semibold">Not Achieved</div>
-                    <div>{challenge.notAchieved ?? 0}</div>
-                  </div>
-                </div>
-                <StreakBar streak={challenge.streak} />
-                <div className="flex flex-row justify-between mt-2 gap-4">
-                  <button className="flex-1 rounded-lg p-2 bg-pink-500/90 font-bold shadow border-none hover:bg-pink-600 transition-all">
-                    Edit
-                  </button>
-                  <button
-                    className="flex-1 rounded-lg p-2 bg-red-500/90 font-bold shadow border-none hover:bg-red-600 transition-all"
-                    onClick={() => deleteTask(challenge.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex-shrink-0 w-[320px] bg-black/40 border border-white/20 rounded-xl h-auto min-h-[480px] flex items-center justify-center shadow-lg backdrop-blur-md text-white font-semibold text-xl">
-            Trending (Upcoming)
-          </div>
-        </div>
       </div>
 
       {/* Create Task Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={() => !creating && setShowCreateModal(false)} />
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => !creating && setShowCreateModal(false)}
+          />
           <form
             onSubmit={handleCreateSubmit}
             className="relative z-50 w-full max-w-xl bg-[#0b0b0f] rounded-xl border border-white/20 p-6 shadow-xl"
