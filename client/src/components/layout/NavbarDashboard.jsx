@@ -81,10 +81,6 @@ const NavbarDashboard = () => {
       </div>
       <div className="flex items-center gap-8 relative">
         <div className="flex flex-row text-2xl justify-center items-center text-white cursor-pointer gap-1">
-          <Bell color="#FFA500" size={24} strokeWidth={2} fill="#FFA500" />
-          5
-        </div>
-        <div className="flex flex-row text-2xl justify-center items-center text-white cursor-pointer gap-1">
           <Flame color="#FFA500" size={24} strokeWidth={2} fill="#FFA500" />
           {streak}
         </div>
