@@ -72,7 +72,7 @@ const Dashboard = () => {
           .map((t) => ({
             id: t.taskId,
             title: t.taskName,
-            streak: t.streaks || 0,
+            streak: t.streaks,
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
@@ -91,7 +91,7 @@ const Dashboard = () => {
           .map((t) => ({
             id: t.taskId,
             title: t.taskName,
-            streak: t.streaks || 0,
+            streak: t.streaks,
             taskDetails: t.taskDetails,
             taskDuration: t.taskDuration,
             difficulty: t.difficulty,
@@ -318,10 +318,10 @@ const Dashboard = () => {
     <div className="w-full h-5 rounded bg-white/20 overflow-hidden relative">
       <div
         className="h-full bg-gradient-to-r from-pink-400 to-blue-400 rounded"
-        style={{ width: `${Math.min((streak || 0) * 8, 100)}%` }}
+        style={{ width: `${Math.min((streak) * 8, 100)}%` }}
       />
       <span className="absolute left-2 top-0 text-xs text-white font-semibold">
-        {streak ?? 0} day streak
+        {streak} day streak
       </span>
     </div>
   );
