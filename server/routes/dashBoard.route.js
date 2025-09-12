@@ -4,12 +4,13 @@ import { createTaskTracker, getTaskTracker ,deleteTaskTracker, updateTaskTracker
 import { isRegularlyUserComing, showRegularComingStreak } from "../controllers/userComingToWebsiteReg.controllers.js";
 import { getAchievements } from "../controllers/userAchievements.controllers.js";
 import { getUserProfile } from "../controllers/auth.controllers.js";
+import upload from "../utils/multer.js";
 // import { getNotifications } from "../controllers/userNotification.controllers.js";
 
 const router = express.Router()
 
 
-router.post("/createtask",protectRoute,createTaskTracker)
+router.post("/createtask",protectRoute,upload.single("taskImage"),createTaskTracker)
 router.get("/gettasks", protectRoute,isRegularlyUserComing,getTaskTracker)
 router.delete('/deletetask',protectRoute,deleteTaskTracker)
 router.patch('/updatetask',protectRoute,updateTaskTracker)

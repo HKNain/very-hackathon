@@ -1,21 +1,24 @@
 import usertaskTracker from "../models/usertaskTracker.models.js";
 import User from "../models/user.models.js";
+import cloudinary from "../utils/Cloudinary.js";
+import streamifier from "streamifier";
 
 
 export const createTaskTracker = async  (req, res) => {
   try {
+
+    console.log (cloudinary.config)
     const user = req.user;
     const {
       taskName,
-      taskImage,
       taskDetails,
       taskDuration,
       taskType,
       isChallenger 
     } = req.body;
     if (
+      !req.file ||
       !taskName ||
-      !taskImage ||
       !taskDetails ||
       !taskDuration ||
       !taskType
@@ -54,23 +57,36 @@ export const createTaskTracker = async  (req, res) => {
     for (let i = 0; i < month; i++) {
       totalDays += daysInMonth[i];
     }
+    const streamUpload = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "taskTracker" },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        streamifier.createReadStream(fileBuffer).pipe(stream);
+      });
+    };
 
-    
+     const result = await streamUpload(req.file.buffer);
 
 
     const taskCreated = await usertaskTracker.create({
       userId : user._id, 
       taskName,
-      taskImage,
       taskDetails,
       taskDuration,
       difficulty,
       taskType,
       createdAt : totalDays,
-      isChallenger
+      isChallenger , 
+      taskImage: result.secure_url, 
+      imageId: result.public_id,
     })
-    return res.status(200).json({success : "task has been created "},
-      taskCreated
+    return res.status(200).json({success : "task has been created ", taskCreated }
+      
     )
 
 
@@ -153,6 +169,7 @@ export const getTaskTracker = async (req, res) => {
               difficulty: track.difficulty,
               challenger : `${track.isChallenger?"True" :"" }`,
               trackId : track.id ,
+              taskImage : track.taskImage
               
             });
             userDetails.Achievements.push(
@@ -189,7 +206,8 @@ export const getTaskTracker = async (req, res) => {
               taskDuration: track.taskDuration,
               difficulty: track.difficulty,
               editedAt: track.editedAt,
-              isChallenger : track.isChallenger
+              isChallenger : track.isChallenger,
+              taskImage : track.taskImage
             
             };
           } else {

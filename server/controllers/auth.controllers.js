@@ -12,15 +12,15 @@ const tokenId  = uuidv4();
 //  * To create acc
 export const signup = async (req, res) => {
   try {
-    const {
+    let {
       email, 
       password, 
       userName 
     } = req.body;
     
-
+    userName = userName.trim()
     if (
-      password.trim().length < 6 ||  !emailRegex.test(email) || userName.trim().length < 6
+      password.trim().length < 6 ||  !emailRegex.test(email) || userName.length < 6
     ) {
       return res
         .status(400)
@@ -72,9 +72,10 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const {  password, userName  } = req.body;
+    let {  password, userName   } = req.body;
+     userName = userName.trim() 
     if (
-      password.trim().length < 6 || userName.trim().length < 6
+      password.trim().length < 6 || userName.length < 6
     ) {
       return res
         .status(400)
