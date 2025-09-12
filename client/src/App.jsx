@@ -8,7 +8,6 @@ import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 import Achievements from "./components/ui/Achievements";
 import Profile from "./components/ui/Profile";
-import Badges from "./components/ui/Badges";
 
 const App = () => {
   return (
@@ -21,7 +20,6 @@ const App = () => {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/achievements" element={<Achievements />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/badges" element={<Badges />} />
     </Routes>
       <Toaster 
         position="top-middle"
