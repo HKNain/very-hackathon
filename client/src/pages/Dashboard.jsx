@@ -23,6 +23,9 @@ const Dashboard = () => {
   const [normalChallenges, setNormalChallenges] = useState([]);
   const [activeChallenges, setActiveChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(0);
+  const [idx, setIdx] = useState(0);
+  const [trendingDays, setTrendingDays] = useState(0);
 
   // modal + form state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -110,8 +113,28 @@ const Dashboard = () => {
     }
   };
 
+  const getTrendingData = async () => {
+    try {
+      const trending = await api.get("/dashboard/trending");
+      setIdx(trending.data.index);
+      setDays(trending.data.mostPrefferedTracks);
+      if(idx == 0){
+        setTrendingDays(7)
+      }else if(idx == 1){
+        setTrendingDays(50);
+      }else if(idx == 2){
+        setTrendingDays(100);
+      }else{
+        setTrendingDays(300);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   useEffect(() => {
     fetchData();
+    getTrendingData();
   }, []);
 
   const validateForm = () => {
@@ -661,8 +684,10 @@ const Dashboard = () => {
             <Calendar />
           </div>
 
-          <div className="bg-black/40 border border-white/20 rounded-xl h-[160px] flex items-center justify-center shadow-lg backdrop-blur-md text-white font-semibold text-xl">
-            Trending (Upcoming)
+          <div className="bg-black/40 border border-white/20 rounded-xl h-[160px] flex items-center justify-center shadow-lg backdrop-blur-md text-white font-semibold text-xl" >
+            Trending {trendingDays} Days Challenge
+            <br />
+            Trending {days} Days Non-challenger 
           </div>
         </div>
 
