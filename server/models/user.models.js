@@ -30,7 +30,10 @@ const userSchema = new mongoose.Schema({
         default : 0
 
     },
-
+    userImage : {
+        type : String ,
+        default : ""
+    },
     taskHistory  : {
         type : Array , 
         default : []

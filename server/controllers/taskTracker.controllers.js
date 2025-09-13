@@ -7,7 +7,6 @@ import sanitizeHtml from "sanitize-html"
 export const createTaskTracker = async  (req, res) => {
   try {
 
-    console.log (cloudinary.config)
     const user = req.user;
     let {
       taskName,
@@ -89,7 +88,6 @@ export const createTaskTracker = async  (req, res) => {
       createdAt : totalDays,
       isChallenger , 
       taskImage: result.secure_url, 
-      imageId: result.public_id,
     })
     return res.status(200).json({success : "task has been created ", taskCreated }
       
