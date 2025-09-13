@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     },
     userImage : {
         type : String ,
-        default : ""
+        default : "https://res.cloudinary.com/def85u7nw/image/upload/v1757780037/taskTracker/dfgythnyqaciv4q9yyze.jpg"
     },
     taskHistory  : {
         type : Array , 

@@ -12,7 +12,11 @@ import "react-calendar-heatmap/dist/styles.css";
 
 const cardData = [
   { title: "Challenges", route: "/dashboard", info: "See all your challenges" },
-  { title: "Achievements", route: "/achievements", info: "See all your achievements" },
+  {
+    title: "Achievements",
+    route: "/achievements",
+    info: "See all your achievements",
+  },
 ];
 
 const floatingPNGs = [berry1, berry2, berry1, berry2, berry1, berry2];
@@ -28,10 +32,11 @@ const getRandomPosition = () => {
 
 const Profile = () => {
   const navigate = useNavigate();
-const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("");
   const [points, setPoints] = useState(0);
   const [streak, setStreak] = useState(0);
   const [profileURL, setProfileURL] = useState("");
+  const fileInputRef = React.useRef(null);
 
   const randomPositions = floatingPNGs.map(() => ({
     ...getRandomPosition(),
@@ -39,7 +44,7 @@ const [username, setUsername] = useState("");
     duration: Math.random() * 6 + 6,
   }));
 
-useEffect(() => {
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await api.get("/dashboard/profile");
@@ -85,6 +90,43 @@ useEffect(() => {
       .catch(() => setStreak(0));
   }, []);
 
+  const handleFileChange = async (e) => {
+    console.log("starting photo chnage");
+    const file = e.target.files[0];
+    if (file) {
+      // Show preview immediately
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileURL(reader.result);
+      };
+      reader.readAsDataURL(file);
+      console.log("creating form data")
+      // Prepare form data for PATCH upload
+      const formData = new FormData();
+      formData.append("userImage", file);
+      formData.append("name", username);
+
+      try {
+        // Replace with your actual PATCH API endpoint
+        console.log("sending form data")
+        const res = await api.patch("/dashboard/updateprofile", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (res.status === 200) {
+          console.log("img updated ")
+          toast.success("Profile image updated");
+          toast.success("Please refresh the page to see chnages");
+        } else {
+          toast.error("Failed to update profile image");
+        }
+      } catch (error) {
+        console.error("Image update error:", error);
+        toast.error("Image update failed");
+      }
+    }
+  };
+
   return (
     <>
       <NavbarDashboard />
@@ -114,13 +156,28 @@ useEffect(() => {
         <div className="w-1/5 min-h-screen flex flex-col justify-between items-center p-4 z-10">
           {/* Top: Profile Info */}
           <div className="w-full flex flex-col items-center bg-black/70 rounded-xl shadow-lg p-4">
-            <div className="h-24 w-24 mb-4 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden">
+            <div className="h-24 w-24 mb-2 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden relative"
+            onContextMenu={(e) => {
+    e.preventDefault();    // Prevent browser menu
+    fileInputRef.current.click();  // Open file manager
+  }}>
               <img
                 className="h-full w-full object-cover rounded-lg"
-                src={profileURL}
+                src={
+                  profileURL ||
+                  "https://res.cloudinary.com/def85u7nw/image/upload/v1757780037/taskTracker/dfgythnyqaciv4q9yyze.jpg"
+                }
                 alt="Profile"
               />
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+              />
             </div>
+
             <div className="text-white text-xl font-bold text-center mb-2">
               {username}
             </div>
