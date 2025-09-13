@@ -5,8 +5,8 @@ import { isRegularlyUserComing, showRegularComingStreak } from "../controllers/u
 import { getAchievements } from "../controllers/userAchievements.controllers.js";
 import { getUserProfile } from "../controllers/auth.controllers.js";
 import {upload} from "../utils/multer.js";
-import { getUserPoints } from "../controllers/userPoints.controllers.js";
-// import { getNotifications } from "../controllers/userNotification.controllers.js";
+import { trendingTasks } from "../controllers/trending.controllers.js";
+import { updateUserProfile } from "../controllers/updateUserProfile.controllers.js";
 
 const router = express.Router()
 
@@ -23,10 +23,19 @@ router.get ('/achievements',protectRoute , getAchievements )
 router.get('/streak', protectRoute , showRegularComingStreak)
 router.get('/',protectRoute)
 router.get('/profile',protectRoute,getUserProfile)
-router.get('/totalpoints', protectRoute , getUserPoints  )
+router.get('/totalpoints', protectRoute , ( req , res )=> {
+        const user = req.user 
+        return res.status(200).json({userPoints : user.totalCoins})
+})
+
+        
 
 
 
-// router.get('/notification',protectRoute , getNotifications )
+router.get('/trending', protectRoute , trendingTasks)
+router.patch('/updateprofile', protectRoute, upload.single("userImage") , updateUserProfile )
+
+
+
 
 export default router
