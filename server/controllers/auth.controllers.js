@@ -152,8 +152,9 @@ export const getUserProfile = ( req , res ) => {
     const regularlyComingToWebsiteDays = user.regularlyComingToWebsiteDays 
     const totalCoins = user.totalCoins
     const userName = user.userName 
+    const userprofileURL = user.userImage
 
-  res.status(200).json({Achievements,regularlyComingToWebsiteDays,totalCoins,userName});
+  res.status(200).json({Achievements,regularlyComingToWebsiteDays,totalCoins,userName, userprofileURL});
   } catch (error) {
     console.log("Error in getUserProfile Controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });

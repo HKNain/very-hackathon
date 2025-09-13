@@ -28,10 +28,10 @@ const getRandomPosition = () => {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [achievements, setAchievements] = useState([]);
-  const [taskHistory, setTaskHistory] = useState([]);
+const [username, setUsername] = useState("");
+  const [points, setPoints] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [userPoints, setUserPoints] = useState(0);
+  const [profileURL, setProfileURL] = useState("");
 
   const randomPositions = floatingPNGs.map(() => ({
     ...getRandomPosition(),
@@ -39,24 +39,15 @@ const Profile = () => {
     duration: Math.random() * 6 + 6,
   }));
 
-  useEffect(() => {
+useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const achRes = await api.get("/dashboard/achievements").catch(() => ({}));
-        const userAchievements =
-          achRes?.data?.userAchievements ||
-          achRes?.data?.Achievements ||
-          achRes?.data?.achievements ||
-          [];
-        const userHistory =
-          achRes?.data?.userHistoryTask || achRes?.data?.taskHistory || [];
-
-        setAchievements(Array.isArray(userAchievements) ? userAchievements : []);
-        setTaskHistory(Array.isArray(userHistory) ? userHistory : []);
-
-        const pointsRes = await api.get("/dashboard/totalpoints");
-        if (pointsRes.status === 200) {
-          setUserPoints(pointsRes.data.userPoints ?? 0);
+        const res = await api.get("/dashboard/profile");
+        if (res.status === 200) {
+          setUsername(res.data.userName);
+          setPoints(res.data.totalCoins ?? 0);
+          setStreak(res.data.regularlyComingToWebsiteDays ?? 0);
+          setProfileURL(res.data.userprofileURL);
         }
       } catch (err) {
         console.error("Profile fetch error", err);
@@ -126,17 +117,14 @@ const Profile = () => {
             <div className="h-24 w-24 mb-4 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden">
               <img
                 className="h-full w-full object-cover rounded-lg"
-                src="https://i.pravatar.cc/300"
+                src={profileURL}
                 alt="Profile"
               />
             </div>
             <div className="text-white text-xl font-bold text-center mb-2">
-              username
+              {username}
             </div>
-            <div className="text-white text-base text-center mb-6">
-              email@example.com
-            </div>
-            <div className="text-white">Points: {userPoints}</div>
+            <div className="text-white">Points: {points}</div>
             <div className="text-white mt-1">Streak: {streak}</div>
           </div>
 

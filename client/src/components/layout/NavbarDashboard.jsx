@@ -6,6 +6,8 @@ import { api } from "../../utils/axios";
 
 const NavbarDashboard = () => {
   const [streak, setStreak] = useState(0);
+    const [profileURL, setProfileURL] = useState("");
+  
 
   useEffect(() => {
     // Fetch the user's streak from the backend
@@ -18,6 +20,20 @@ const NavbarDashboard = () => {
         setStreak(0);
       });
   }, []);
+
+  useEffect(() => {
+      const fetchProfile = async () => {
+        try {
+          const res = await api.get("/dashboard/profile");
+          if (res.status === 200) {
+            setProfileURL(res.data.userprofileURL);
+          }
+        } catch (err) {
+          console.error("Profile fetch error", err);
+        }
+      };
+      fetchProfile();
+    }, []);
 
   const navBarOptionsStyle =
     "border border-gray-500 p-2 rounded-lg bg-white/10 text-white " +
@@ -86,7 +102,7 @@ const NavbarDashboard = () => {
         </div>
         <NavLink to="/profile">
           <img
-            src="https://i.pravatar.cc/300"
+            src={profileURL}
             alt="Profile"
             className="h-10 w-10 rounded-full border-2 border-pink-300 cursor-pointer"
           />
